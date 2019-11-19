@@ -77,3 +77,55 @@ rule merge_bam_alignment:
             --ALIGNER_PROPER_PAIR_FLAGS true \
             --UNMAP_CONTAMINANT_READS true 2> {log}
         """
+
+rule mark_duplicates:
+    input:
+        "results/{sample}_merged.bam"
+    output:
+        bam="results/{sample}_marked.bam",
+        md5="results/{sample}_marked.bam.md5",
+        metrics="results/metrics/{sample}_duplicate_metrics"
+    log:
+        "logs/mark_duplicates/{sample}.log"
+    shell:
+        """
+        module load biology gatk
+        gatk MarkDuplicates \
+            --INPUT {input} \
+            --OUTPUT {output.bam} \
+            --METRICS_FILE {output.metrics} \
+            --VALIDATION_STRINGENCY SILENT \
+            --OPTICAL_DUPLICATE_PIXEL_DISTANCE 100 \
+            --ASSUME_SORT_ORDER "queryname" \
+            --CREATE_MD5_FILE true 2> {log}
+        """
+
+rule sort_and_fix_tags:
+    input:
+        bam="results/{sample}_marked.bam",
+        ref="data/genome.fa"
+    output:
+        bam="results/{sample}_sorted.bam",
+        index="results/{sample}_sorted.bai",
+        md5="results/{sample}_sorted.bam.md5"
+    log:
+        "logs/sort_and_fix_tags/{sample}.log"
+    shell:
+        """
+        set -o pipefail
+        module load biology gatk
+        gatk SortSam \
+            --INPUT {input.bam} \
+            --OUTPUT /dev/stdout \
+            --SORT_ORDER "coordinate" \
+            --CREATE_INDEX false \
+            --CREATE_MD5_FILE false \
+        | \
+        gatk SetNmMdAndUqTags \
+            --INPUT /dev/stdin \
+            --OUTPUT {output.bam} \
+            --CREATE_INDEX true \
+            --CREATE_MD5_FILE true \
+            --REFERENCE_SEQUENCE {input.ref} 2> {log}
+        """
+
