@@ -132,7 +132,7 @@ rule fastqc:
     shell:
         """
         ml biology fastqc
-        fastqc {input} -o qc/fastqc
+        fastqc {input} -o qc/fastqc -d /tmp/{sample}
         """
 
 rule multiqc:
