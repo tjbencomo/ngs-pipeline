@@ -1,7 +1,0 @@
-samples: samples.csv
-units: details.csv
-
-ref:
-    name: GRCH38.86
-    genome: "data/ref/genome.fa"
-
