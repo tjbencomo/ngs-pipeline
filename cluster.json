@@ -1,0 +1,10 @@
+{
+    "__default__" :
+    {
+        "account" : "tbencomo",
+        "time" : "00:10:00",
+        "cpus-per-task" : 1,
+        "mem" : "1G",
+        "partition" : "normal"
+    }
+}
