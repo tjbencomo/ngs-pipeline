@@ -3,3 +3,4 @@ units: units.csv
 ref_dir: /home/groups/carilee/refs/hg38/
 ref_fasta: Homo_sapiens_assembly38.fasta
 known_sites: dbsnp_146.hg38.vcf.gz
+exome_targets: /home/groups/carilee/refs/twist_hg38_chr21_exomes.bed

@@ -1,8 +1,6 @@
 import os
 import sys
 import pandas as pd
-from tempfile import TemporaryDirectory
-from snakemake.shell import shell
 
 configfile: "config.yaml"
 samples = pd.read_csv(config['samples'])['sample']
@@ -11,6 +9,7 @@ ref_dir = config['ref_dir']
 ref_fasta = os.path.join(ref_dir, config['ref_fasta'])
 known_sites = config['known_sites'].split(',')
 known_sites = [os.path.join(ref_dir, s) for s in known_sites]
+capture_bed = config['exome_targets']
 
 wildcard_constraints:
     sample="|".join(samples)
@@ -122,6 +121,28 @@ rule bqsr:
             --create-output-bam-md5 --use-original-qualities
         """
 
+rule exome_cov:
+    input:
+        bam="bams/{sample}.bam",
+        exons=capture_bed
+    output:
+        "qc/{sample}.mosdepth.region.dist.txt"
+    shell:
+        """
+        mosdepth --by {input.exons} qc/{wildcards.sample} {input.bam}
+        """
+
+rule stats:
+    input:
+        "bams/{sample}.bam"
+    output:
+        "qc/{sample}.flagstat"
+    shell:
+        """
+        ml biology samtools
+        samtools flagstat {input} > {output}
+        """
+
 rule fastqc:
     input:
         "bams/{sample}.bam"
@@ -134,7 +155,9 @@ rule fastqc:
 rule multiqc:
     input:
         expand("qc/fastqc/{sample}_fastqc.zip", sample=samples),
-        expand("qc/{sample}.recal_data.table", sample=samples)
+        expand("qc/{sample}.recal_data.table", sample=samples),
+        expand("qc/{sample}.mosdepth.region.dist.txt", sample=samples),
+        expand("qc/{sample}.flagstat", sample=samples)
     output:
         "qc/multiqc_report.html"
     shell:
