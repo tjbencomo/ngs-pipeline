@@ -1,6 +1,8 @@
 import os
 import sys
 import pandas as pd
+from tempfile import TemporaryDirectory
+from snakemake.shell import shell
 
 configfile: "config.yaml"
 samples = pd.read_csv(config['samples'])['sample']
@@ -10,8 +12,14 @@ ref_fasta = os.path.join(ref_dir, config['ref_fasta'])
 known_sites = config['known_sites'].split(',')
 known_sites = [os.path.join(ref_dir, s) for s in known_sites]
 
+wildcard_constraints:
+    sample="|".join(samples)
+
 def get_fastq(sample):
     return {'r1' : units.loc[sample, 'fq1'], 'r2' : units.loc[sample, 'fq2']}
+
+def get_platform(sample):
+    return units.loc[sample, 'platform'][0]
 
 rule targets:
     input:
@@ -23,11 +31,13 @@ rule combine_fqs:
         unpack(get_fastq)
     output:
         "bams/{sample}.unaligned.bam"
+    params:
+        pl=get_platform
     shell:
         """
         ml biology gatk
         gatk FastqToSam -F1 {input.r1} -F2 {input.r2} -O {output} \
-            -SM {wildcards.sample} -RG {wildcards.sample}
+            -SM {wildcards.sample} -RG {wildcards.sample} -PL {params.pl}
         """
 
 rule bwa:
@@ -93,31 +103,20 @@ rule sort_fix_tags:
             --CREATE_INDEX true --CREATE_MD5_FILE true
         """
 
-rule compute_bqsr:
+rule bqsr:
     input:
         bam="bams/{sample}.sorted.bam",
         known=known_sites,
         ref=ref_fasta
     output:
-        "qc/{sample}.recal_data.table"
+        bam="bams/{sample}.bam",
+        recal="qc/{sample}.recal_data.table"
     shell:
         """
         ml biology gatk
-        gatk BaseRecalibrator -I {input.bam} -R {input.ref} -O {output} \
-            --known-sites {known} 
-        """
-
-rule apply_bqsr:
-    input:
-        bam="bams/{sample}.sorted.bam",
-        ref=ref_fasta,
-        bqsr="qc/{sample}.recal_data.table"
-    output:
-        "bams/{sample}.bam"
-    shell:
-        """
-        ml biology gatk
-        gatk ApplyBQSR -I {input.bam} -R {input.ref} -O {output} -bqsr {input.bqsr} \
+        gatk BaseRecalibrator -I {input.bam} -R {input.ref} -O {output.recal} \
+            --known-sites {input.known}
+        gatk ApplyBQSR -I {input.bam} -R {input.ref} -O {output.bam} -bqsr {output.recal} \
             --static-quantized-quals 10 --static-quantized-quals 20 \
             --static-quantized-quals 30 --add-output-sam-program-record \
             --create-output-bam-md5 --use-original-qualities
@@ -125,19 +124,17 @@ rule apply_bqsr:
 
 rule fastqc:
     input:
-        "bams/{sample}.markdups.bam"
+        "bams/{sample}.bam"
     output:
-        "qc/fastqc/{sample}_fastqc.html",
-        "qc/fastqc/{sample}_fastqc.zip"
-    shell:
-        """
-        ml biology fastqc
-        fastqc {input} -o qc/fastqc -d /tmp/{sample}
-        """
-
+        html="qc/fastqc/{sample}.html",
+        zip="qc/fastqc/{sample}_fastqc.zip"
+    wrapper:
+        "0.45.0/bio/fastqc"
+    
 rule multiqc:
     input:
-        expand("qc/fastqc/{sample}_fastqc.zip", sample=samples)
+        expand("qc/fastqc/{sample}_fastqc.zip", sample=samples),
+        expand("qc/{sample}.recal_data.table", sample=samples)
     output:
         "qc/multiqc_report.html"
     shell:
