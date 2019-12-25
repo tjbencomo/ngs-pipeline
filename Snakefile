@@ -88,6 +88,7 @@ rule sort_fix_tags:
     output:
         bam=temp("bams/{sample}.sorted.bam"),
         bai=temp("bams/{sample}.sorted.bai")
+        md5=temp("bams/{sample}.sorted.bam.md5")
     shell:
         """
         gatk SortSam -I {input.bam} -O /dev/stdout --SORT_ORDER "coordinate" \
