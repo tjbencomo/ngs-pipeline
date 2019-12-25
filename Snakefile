@@ -29,12 +29,11 @@ rule combine_fqs:
     input:
         unpack(get_fastq)
     output:
-        "bams/{sample}.unaligned.bam"
+        temp("bams/{sample}.unaligned.bam")
     params:
         pl=get_platform
     shell:
         """
-        ml biology gatk
         gatk FastqToSam -F1 {input.r1} -F2 {input.r2} -O {output} \
             -SM {wildcards.sample} -RG {wildcards.sample} -PL {params.pl}
         """
@@ -44,11 +43,10 @@ rule bwa:
         bam="bams/{sample}.unaligned.bam",
         ref=ref_fasta
     output:
-        "bams/{sample}.aligned.bam"
+        temp("bams/{sample}.aligned.bam")
     threads: 4
     shell:
         """
-        ml biology bwa samtools gatk
         gatk SamToFastq -I {input.bam} -F /dev/stdout -INTER true -NON_PF true \
         | \
         bwa mem -K 100000000 -p -v 3 -t {threads} -Y \
@@ -63,10 +61,9 @@ rule merge_bams:
         aligned="bams/{sample}.aligned.bam",
         ref=ref_fasta
     output:
-        "bams/{sample}.merged.bam"
+        temp("bams/{sample}.merged.bam")
     shell:
         """
-        ml biology gatk
         gatk MergeBamAlignment -UNMAPPED {input.unaligned} -ALIGNED {input.aligned} \
             -R {input.ref} -O {output} 
         """
@@ -75,12 +72,11 @@ rule mark_duplicates:
     input:
         "bams/{sample}.merged.bam"
     output:
-        bam="bams/{sample}.markdups.bam",
-        md5="bams/{sample}.markdups.bam.md5",
+        bam=temp("bams/{sample}.markdups.bam"),
+        md5=temp("bams/{sample}.markdups.bam.md5"),
         metrics="qc/gatk/{sample}_dup_metrics.txt"
     shell:
         """
-        ml biology gatk
         gatk MarkDuplicates -I {input} -O {output.bam} -M {output.metrics} \
             --CREATE_MD5_FILE true --ASSUME_SORT_ORDER "queryname"
         """
@@ -90,11 +86,10 @@ rule sort_fix_tags:
         bam="bams/{sample}.markdups.bam",
         ref=ref_fasta
     output:
-        bam="bams/{sample}.sorted.bam",
-        bai="bams/{sample}.sorted.bai"
+        bam=temp("bams/{sample}.sorted.bam"),
+        bai=temp("bams/{sample}.sorted.bai")
     shell:
         """
-        ml biology gatk
         gatk SortSam -I {input.bam} -O /dev/stdout --SORT_ORDER "coordinate" \
             --CREATE_INDEX false --CREATE_MD5_FILE false \
         | \
@@ -112,7 +107,6 @@ rule bqsr:
         recal="qc/{sample}.recal_data.table"
     shell:
         """
-        ml biology gatk
         gatk BaseRecalibrator -I {input.bam} -R {input.ref} -O {output.recal} \
             --known-sites {input.known}
         gatk ApplyBQSR -I {input.bam} -R {input.ref} -O {output.bam} -bqsr {output.recal} \
@@ -127,9 +121,10 @@ rule exome_cov:
         exons=capture_bed
     output:
         "qc/{sample}.mosdepth.region.dist.txt"
+    threads: 4
     shell:
         """
-        mosdepth --by {input.exons} qc/{wildcards.sample} {input.bam}
+        mosdepth --by {input.exons} -t {threads} qc/{wildcards.sample} {input.bam}
         """
 
 rule stats:
@@ -139,7 +134,6 @@ rule stats:
         "qc/{sample}.flagstat"
     shell:
         """
-        ml biology samtools
         samtools flagstat {input} > {output}
         """
 
@@ -151,7 +145,7 @@ rule fastqc:
         zip="qc/fastqc/{sample}_fastqc.zip"
     wrapper:
         "0.45.0/bio/fastqc"
-    
+
 rule multiqc:
     input:
         expand("qc/fastqc/{sample}_fastqc.zip", sample=samples),
@@ -162,6 +156,5 @@ rule multiqc:
         "qc/multiqc_report.html"
     shell:
         """
-        ml biology py-multiqc
         multiqc {input} -o qc/
         """
