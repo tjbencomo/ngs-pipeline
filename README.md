@@ -7,7 +7,8 @@ If it's not already installed, go [here](https://www.anaconda.com/distribution/)
 to download `conda`.
 
 ## Setup
-First create the `ngs-pipeline` environment with conda
+First clone this repository and then create the `ngs-pipeline` 
+environment with conda
 ```
 conda env create -f environment.yml
 ```
