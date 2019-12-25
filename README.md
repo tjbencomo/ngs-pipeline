@@ -4,7 +4,7 @@ Pipelines for processing next generation sequencing (NGS) data.
 ## Prerequisites
 `conda` is required for `snakemake` and the bioinformatics executables.
 If it's not already installed, go [here](https://www.anaconda.com/distribution/) 
-to download `conda`.
+to download and install Anaconda.
 
 ## Setup
 First clone this repository and then create the `ngs-pipeline` 
