@@ -1,2 +1,2 @@
-sample,platform,fq1,fq2
-A,ILLUMINA,data/samples/A_1.fq,data/samples/A_2.fq
+sample,type,platform,fq1,fq2
+A,normal,ILLUMINA,data/samples/A_1.fq,data/samples/A_2.fq

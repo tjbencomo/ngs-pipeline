@@ -26,4 +26,6 @@ def get_fastq(sample):
 def get_platform(sample):
     return units.loc[sample, 'platform'][0]
 
+def get_call_pair(sample):
+    return
 
