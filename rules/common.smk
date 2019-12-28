@@ -16,7 +16,8 @@ ref_fasta = os.path.join(ref_dir, config['ref_fasta'])
 known_sites = config['known_sites'].split(',')
 known_sites = [os.path.join(ref_dir, s) for s in known_sites]
 capture_bed = config['exome_targets']
-types = ['control', 'tumor']
+germline_resource = config['germline_resource']
+types = ['normal', 'tumor']
 
 wildcard_constraints:
     sample="|".join(samples),
@@ -30,6 +31,6 @@ def get_platform(wildcards):
     return units.loc[(wildcards.sample, wildcards.type), 'platform'][0]
 
 def get_call_pair(wildcards):
-    return {'normal' : f"{wildcards.sample}.control.bam",
-            'tumor' : f"{wildcards.sample}.tumor.bam"}
+    return {'normal' : f"bams/{wildcards.sample}.normal.bam",
+            'tumor' : f"bams/{wildcards.sample}.tumor.bam"}
 
