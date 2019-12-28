@@ -1,2 +1,3 @@
-sample,platform,fq1,fq2
-A,ILLUMINA,data/samples/A_1.fq,data/samples/A_2.fq
+sample,type,platform,fq1,fq2
+sun,normal,ILLUMINA,data/samples/sun.control_1.fq.gz,data/samples/sun.control_2.fq.gz
+sun,tumor,ILLUMINA,data/samples/sun.tumor_1.fq.gz,data/samples/sun.tumor_2.fq.gz

@@ -1,8 +1,10 @@
-include: "common.smk"
+include: "rules/common.smk"
 
 rule targets:
     input:
-        expand("bams/{sample}.bam", sample=samples),
+        expand("bams/{sample}.{type}.bam", sample=samples, type=types),
+        expand("vcfs/{sample}.vcf", sample=samples),
         "qc/multiqc_report.html"
 
-include: "preprocessing.smk"
+include: "rules/preprocessing.smk"
+include: "rules/calling.smk"
