@@ -17,6 +17,7 @@ known_sites = config['known_sites'].split(',')
 known_sites = [os.path.join(ref_dir, s) for s in known_sites]
 capture_bed = config['exome_targets']
 germline_resource = config['germline_resource']
+contamination_resource = config['contamination_resource']
 types = ['normal', 'tumor']
 
 wildcard_constraints:

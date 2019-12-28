@@ -17,7 +17,9 @@ rule combine_fqs:
     shell:
         """
         gatk FastqToSam -F1 {input.r1} -F2 {input.r2} -O {output} \
-            -SM {wildcards.sample} -RG {wildcards.sample} -PL {params.pl}
+            -SM {wildcards.sample}.{wildcards.type} \
+            -RG {wildcards.sample}.{wildcards.type} \
+            -PL {params.pl}
         """
 
 rule bwa:
@@ -109,7 +111,8 @@ rule exome_cov:
     threads: 4
     shell:
         """
-        mosdepth --by {input.exons} -t {threads} qc/{wildcards.sample} {input.bam}
+        mosdepth --by {input.exons} -t {threads} qc/{wildcards.sample}_{wildcards.type} \
+            {input.bam}
         """
 
 rule stats:

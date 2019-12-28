@@ -5,3 +5,4 @@ ref_fasta: Homo_sapiens_assembly38.fasta
 known_sites: dbsnp_146.hg38.vcf.gz
 exome_targets: /home/groups/carilee/refs/twist_hg38_chr21_exomes.bed
 germline_resource: /home/groups/carilee/refs/gnomAD/af-only-gnomad.hg38.vcf.gz
+contamination_resource: /home/groups/carilee/refs/gnomAD/small_exac_common_3.hg38.vcf.gz
