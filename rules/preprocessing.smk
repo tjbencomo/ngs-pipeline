@@ -11,7 +11,7 @@ rule combine_fqs:
     input:
         unpack(get_fastq)
     output:
-        temp("bams/{sample}.unaligned.bam")
+        temp("bams/{sample}.{type}.unaligned.bam")
     params:
         pl=get_platform
     shell:
@@ -22,10 +22,10 @@ rule combine_fqs:
 
 rule bwa:
     input:
-        bam="bams/{sample}.unaligned.bam",
+        bam="bams/{sample}.{type}.unaligned.bam",
         ref=ref_fasta
     output:
-        temp("bams/{sample}.aligned.bam")
+        temp("bams/{sample}.{type}.aligned.bam")
     threads: 4
     shell:
         """
@@ -39,11 +39,11 @@ rule bwa:
 
 rule merge_bams:
     input:
-        unaligned="bams/{sample}.unaligned.bam",
-        aligned="bams/{sample}.aligned.bam",
+        unaligned="bams/{sample}.{type}.unaligned.bam",
+        aligned="bams/{sample}.{type}.aligned.bam",
         ref=ref_fasta
     output:
-        temp("bams/{sample}.merged.bam")
+        temp("bams/{sample}.{type}.merged.bam")
     shell:
         """
         gatk MergeBamAlignment -UNMAPPED {input.unaligned} -ALIGNED {input.aligned} \
@@ -52,11 +52,11 @@ rule merge_bams:
 
 rule mark_duplicates:
     input:
-        "bams/{sample}.merged.bam"
+        "bams/{sample}.{type}.merged.bam"
     output:
-        bam=temp("bams/{sample}.markdups.bam"),
-        md5=temp("bams/{sample}.markdups.bam.md5"),
-        metrics="qc/gatk/{sample}_dup_metrics.txt"
+        bam=temp("bams/{sample}.{type}.markdups.bam"),
+        md5=temp("bams/{sample}.{type}.markdups.bam.md5"),
+        metrics="qc/gatk/{sample}_{type}_dup_metrics.txt"
     shell:
         """
         gatk MarkDuplicates -I {input} -O {output.bam} -M {output.metrics} \
@@ -65,12 +65,12 @@ rule mark_duplicates:
 
 rule sort_fix_tags:
     input:
-        bam="bams/{sample}.markdups.bam",
+        bam="bams/{sample}.{type}.markdups.bam",
         ref=ref_fasta
     output:
-        bam=temp("bams/{sample}.sorted.bam"),
-        bai=temp("bams/{sample}.sorted.bai"),
-        md5=temp("bams/{sample}.sorted.bam.md5")
+        bam=temp("bams/{sample}.{type}.sorted.bam"),
+        bai=temp("bams/{sample}.{type}.sorted.bai"),
+        md5=temp("bams/{sample}.{type}.sorted.bam.md5")
     shell:
         """
         gatk SortSam -I {input.bam} -O /dev/stdout --SORT_ORDER "coordinate" \
@@ -82,12 +82,14 @@ rule sort_fix_tags:
 
 rule bqsr:
     input:
-        bam="bams/{sample}.sorted.bam",
+        bam="bams/{sample}.{type}.sorted.bam",
         known=known_sites,
         ref=ref_fasta
     output:
-        bam="bams/{sample}.bam",
-        recal="qc/{sample}.recal_data.table"
+        bam="bams/{sample}.{type}.bam",
+        bai="bams/{sample}.{type}.bai",
+        md5="bams/{sample}.{type}.bam.md5",
+        recal="qc/{sample}.{type}.recal_data.table"
     shell:
         """
         gatk BaseRecalibrator -I {input.bam} -R {input.ref} -O {output.recal} \
@@ -100,10 +102,10 @@ rule bqsr:
 
 rule exome_cov:
     input:
-        bam="bams/{sample}.bam",
+        bam="bams/{sample}.{type}.bam",
         exons=capture_bed
     output:
-        "qc/{sample}.mosdepth.region.dist.txt"
+        "qc/{sample}_{type}.mosdepth.region.dist.txt"
     threads: 4
     shell:
         """
@@ -112,9 +114,9 @@ rule exome_cov:
 
 rule stats:
     input:
-        "bams/{sample}.bam"
+        "bams/{sample}.{type}.bam"
     output:
-        "qc/{sample}.flagstat"
+        "qc/{sample}.{type}.flagstat"
     shell:
         """
         samtools flagstat {input} > {output}
@@ -122,19 +124,19 @@ rule stats:
 
 rule fastqc:
     input:
-        "bams/{sample}.bam"
+        "bams/{sample}.{type}.bam"
     output:
-        html="qc/fastqc/{sample}.html",
-        zip="qc/fastqc/{sample}_fastqc.zip"
+        html="qc/fastqc/{sample}_{type}.html",
+        zip="qc/fastqc/{sample}_{type}_fastqc.zip"
     wrapper:
         "0.45.0/bio/fastqc"
 
 rule multiqc:
     input:
-        expand("qc/fastqc/{sample}_fastqc.zip", sample=samples),
-        expand("qc/{sample}.recal_data.table", sample=samples),
-        expand("qc/{sample}.mosdepth.region.dist.txt", sample=samples),
-        expand("qc/{sample}.flagstat", sample=samples)
+        expand("qc/fastqc/{sample}_{type}_fastqc.zip", sample=samples, type=types),
+        expand("qc/{sample}.{type}.recal_data.table", sample=samples, type=types),
+        expand("qc/{sample}_{type}.mosdepth.region.dist.txt", sample=samples, type=types),
+        expand("qc/{sample}.{type}.flagstat", sample=samples, type=types)
     output:
         "qc/multiqc_report.html"
     shell:
