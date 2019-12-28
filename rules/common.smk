@@ -13,7 +13,7 @@ samples = pd.read_csv(config['samples'])['sample']
 units = pd.read_csv(config['units'], dtype=str).set_index(["sample", "type"], drop=False)
 ref_dir = config['ref_dir']
 ref_fasta = os.path.join(ref_dir, config['ref_fasta'])
-known_sites = config['known_sites'].split(',')
+known_sites = config['known_sites'].replace(' ', '').split(',')
 known_sites = [os.path.join(ref_dir, s) for s in known_sites]
 capture_bed = config['exome_targets']
 germline_resource = config['germline_resource']
