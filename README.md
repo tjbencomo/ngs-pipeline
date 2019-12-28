@@ -9,8 +9,8 @@ or whole genome sequencing (WGS) data
 If it's not already installed, go [here](https://www.anaconda.com/distribution/) 
 to download and install Anaconda.
 
-Before you start setting up the pipeline, make sure you have your reference genome assembled. You'll
-need the FASTA file and `bwa` index files. The GRCh38 (hg38) genome is available from on the Broad's
+Before you start setting up the pipeline, make sure you have your reference genome assembled.
+The GRCh38 (hg38) genome is available from on the Broad's
 GATK [website](https://software.broadinstitute.org/gatk/download/bundle). 
 
 After downloading the assembly files, run `bwa index` on the FASTA file and save the
