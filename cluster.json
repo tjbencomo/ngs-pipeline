@@ -1,10 +1,96 @@
 {
-    "__default__" :
+    "__default__":
     {
         "account" : "tbencomo",
         "time" : "00:10:00",
-        "cpus-per-task" : 1,
+        "ncpus" : 1,
         "mem" : "1G",
         "partition" : "normal"
+    },
+    "combine_fqs":
+    {
+        "time" : "1:00:00",
+        "ncpus" : 1,
+        "mem" : "16G"
+    },
+    "bwa":
+    {
+        "time" : "2:30:00",
+        "ncpus" : 8,
+        "mem" : "24G"
+    },
+    "merge_bams":
+    {
+        "time" : "00:45:00",
+        "ncpus": 1,
+        "mem" : "16G"
+    },
+    "mark_duplicates":
+    {
+        "time" : "3:00:00",
+        "ncpus" : 1,
+        "mem" : "32G"
+    },
+    "sort_fix_tags":
+    {
+        "time" : "3:00:00",
+        "ncpus" : 1,
+        "mem" : "32G"
+    },
+    "bqsr":
+    {
+        "time" : "2:30:00",
+        "ncpus" : 1,
+        "mem" : "24G"
+    }
+    "exome_cov":
+    {
+        "time" : "00:45:00",
+        "ncpus" : 4,
+        "mem" "16G"
+    },
+    "stats":
+    {
+        "time" : "00:30:00",
+        "ncpus" : 1,
+        "mem" : "16G"
+    },
+    "fastqc":
+    {
+        "time" : "00:10:00",
+        "ncpus" : 1,
+        "mem" : "16G"
+    },
+    "multiqc":
+    {
+        "time" : "00:20:00",
+        "ncpus" : 1,
+        "mem" : "16G"
+    },
+    "mutect2":
+    {
+        "time" : "6:00:00",
+        "ncpus" : 4,
+        "mem" : "32G"
+    },
+    "pileup_summaries":
+    {
+        "time" : "00:10:00",
+        "ncpus" : 1,
+        "mem" : "8G"
+    },
+    "calculate_contamination":
+    {
+        "time" : "00:10:00",
+        "ncpus" : 1,
+        "mem" : "8G"
+    },
+    "filter_calls":
+    {
+        "time" : "00:10:00",
+        "ncpus" : 1,
+        "mem" : "8G"
     }
 }
+
+
