@@ -34,6 +34,9 @@ conda activate snakemake
 snakemake [pipeline]
 ```
 
+## Slurm Parallelism
+https://hpc-carpentry.github.io/hpc-python/17-cluster/
+
 ## Citations
 This pipeline is based on `dna-seq-gatk-variant-calling` by 
 [Johannes Köster](https://github.com/snakemake-workflows/dna-seq-gatk-variant-calling).
