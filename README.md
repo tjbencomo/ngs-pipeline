@@ -69,11 +69,12 @@ If you're processing lots of samples, the dry run may be slow from printing all 
 ```
 snakemake -n --quiet
 ```
-Once you're ready to run the analysis type
+to speed up the dry run.
+Once you're ready to run the analysis navigate to the base directory with `Snakefile` and type
 ```
 snakemake
 ```
-If your machine has multiple cores, you can exploit your computer's parallelism with
+If your machine has multiple cores, you can use these cores with
 ```
 snakemake -j [cores]
 ```
