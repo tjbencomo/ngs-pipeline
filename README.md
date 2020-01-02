@@ -18,7 +18,7 @@ run properly without these index files.
 
 ## Setup
 
-1. Create a new Github repository using this workflow as a template using the `Use this template` button
+1. Create a new Github repository using this workflow as a template with the `Use this template` button
 at the top of this page. This will allow you to track any changes made to the analysis with `git`
 2. Clone the repository to the machine where you want to perform data analysis
 3. Create the `ngs-pipeline` 
