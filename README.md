@@ -74,7 +74,7 @@ Once you're ready to run the analysis type
 ```
 snakemake
 ```
-If your machine has multiple cores, you can exploit parallelism with
+If your machine has multiple cores, you can exploit your computer's parallelism with
 ```
 snakemake -j [cores]
 ```
