@@ -117,7 +117,7 @@ chmod +x parseJobID.sh
 
 Then run snakemake with
 ```
-snakemake --cluster-config cluster.json --cluster 'sbatch $(./parseJobID.sh {dependencies}) -t {cluster.time} --mem {cluster.mem} -p {cluster.partition} -c {cluster.ncpus}' --jobs 100 --notemp --immediate-submit
+snakemake --cluster-config cluster.json --cluster "sbatch $(./parseJobID.sh {dependencies}) -t {cluster.time} --mem {cluster.mem} -p {cluster.partition} -c {cluster.ncpus}" --jobs 100 --notemp --immediate-submit
 ```
 
 
