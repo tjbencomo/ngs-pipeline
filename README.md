@@ -1,4 +1,4 @@
-# ngs-pipelines
+# ngs-pipeline
 **CURRENTLY IN DEVELOPMENT**
 
 NGS pipeline for calling somatic variants from whole exome sequencing (WES)
@@ -37,7 +37,7 @@ conda activate ngs-pipeline
 If you plan to use this environment frequently, its useful to create a bash alias for quick access.
 Add this code to `.bashrc`
 ```
-alias ngs='conda activate ngs-pipeline
+alias ngs='conda activate ngs-pipeline'
 ```
 After reloading `.bashrc` with `source .bashrc`, you can enable the environment by typing `ngs` at the console.
 
@@ -61,6 +61,65 @@ paired, so both `fq1` and `fq2` must be specified.
 
 
 ## Usage
+After finishing the setup and enabling the `conda` environment, inside the analysis directory with
+`Snakefile` do a dry run to check for errors
+```
+snakemake -n
+```
+If you're processing lots of samples, the dry run may be slow from printing all the rules. Use
+```
+snakemake -n --quiet
+```
+Once you're ready to run the analysis type
+```
+snakemake
+```
+If your machine has multiple cores, you can exploit parallelism with
+```
+snakemake -j [cores]
+```
+This will run multiple rules simultaneously, speeding up the analysis.
+
+After the analysis is complete don't forget to check `qc/multiqc_report.html` for
+quality control results about the analysis.
+
+### SLURM
+There are two options to run the analysis on a SLURM cluster
+
+1. Run snakemake process on node using `screen` and `nohup`
+If you can reliably access a specific login node and there isn't a time limit
+on login node processes, it's advisable to run the snakemake command that submits jobs
+to the cluster on the login node with `screen` and `nohup`.
+You can launch the analysis with cluster execution by typing
+```
+snakemake --cluster-config cluster.json -j 100 
+--cluster "sbatch -p {cluster.partition} -t {cluster.time} --mem {cluster.mem}  -c {cluster.ncpus}"
+```
+The benefit of this approach is `snakemake` temporary files are supported, so the analysis will
+only create 4 files per sample: `{sample}.normal.bam`, `{sample}.tumor.bam`, `{sample}.vcf`, `{sample}_m2.bam`.
+These files are the analysis ready bams, final filtered somatic calls, and the accompanying bam file 
+for IGV viewing.
+
+2. Submit all jobs to the queue immediately 
+If your cluster has login node time limits or there are several login nodes, you may not be able to use
+the first option. Time limits may kill the snakemake process prematurely. If there are several login nodes
+and it varies which login node you're assigned to when you sign in, you may not be able to retrieve the process
+if you launch it on one login node and then sign back in on another node.
+
+To circumvent these problems, it's possible to submit all the jobs immediately to the queue,
+returning control to the user. Unfortunately this approach doesn't support temporary files, so there will
+be  intermediate files generated that you'll have to ignore or manually delete.
+
+
+First give `parseJobID.sh` permission to run with
+```
+chmod +x parseJobID.sh
+```
+
+Then run snakemake with
+```
+snakemake --cluster-config cluster.json --cluster 'sbatch $(./parseJobID.sh {dependencies}) -t {cluster.time} --mem {cluster.mem} -p {cluster.partition} -c {cluster.ncpus}' --jobs 100 --notemp --immediate-submit
+```
 
 
 ## Citations
