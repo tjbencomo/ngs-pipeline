@@ -28,7 +28,7 @@ rule bwa:
         ref=ref_fasta
     output:
         temp("bams/{sample}.{type}.aligned.bam")
-    threads: 4
+    threads: 8
     shell:
         """
         gatk SamToFastq -I {input.bam} -F /dev/stdout -INTER true -NON_PF true \
