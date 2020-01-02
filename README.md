@@ -1,7 +1,7 @@
 # ngs-pipeline
 **CURRENTLY IN DEVELOPMENT**
 
-NGS pipeline for calling somatic variants from whole exome sequencing (WES)
+NGS pipeline for calling somatic variants from whole exome sequencing (WES) data
 
 ## Prerequisites
 `conda` is required for `snakemake` and the bioinformatics executables.
