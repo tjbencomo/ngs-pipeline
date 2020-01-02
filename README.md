@@ -92,8 +92,7 @@ on login node processes, it's advisable to run the snakemake command that submit
 to the cluster on the login node with `screen` and `nohup`.
 You can launch the analysis with cluster execution by typing
 ```
-snakemake --cluster-config cluster.json -j 100 
---cluster "sbatch -p {cluster.partition} -t {cluster.time} --mem {cluster.mem}  -c {cluster.ncpus}"
+snakemake --cluster-config cluster.json -j 100 --cluster "sbatch -p {cluster.partition} -t {cluster.time} --mem {cluster.mem}  -c {cluster.ncpus}"
 ```
 The benefit of this approach is `snakemake` temporary files are supported, so the analysis will
 only create 4 files per sample: `{sample}.normal.bam`, `{sample}.tumor.bam`, `{sample}.vcf`, `{sample}_m2.bam`.
