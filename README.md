@@ -107,7 +107,7 @@ if you launch it on one login node and then sign back in on another node.
 
 To circumvent these problems, it's possible to submit all the jobs immediately to the queue,
 returning control to the user. Unfortunately this approach doesn't support temporary files, so there will
-be  intermediate files generated that you'll have to ignore or manually delete.
+be  intermediate files that you'll have to ignore or manually delete.
 
 
 First give `parseJobID.sh` permission to run with
