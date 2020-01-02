@@ -18,25 +18,50 @@ index files to the same directory where the assembly files are stored. `bwa mem`
 run properly without these index files.
 
 ## Setup
-First clone this repository and then create the `ngs-pipeline` 
+
+1. Create a new Github repository using this workflow as a template using the `Use this template` button
+at the top of this page. This will allow you to track any changes made to the analysis with `git`
+2. Clone the repository to the machine where you want to perform data analysis
+3. Create the `ngs-pipeline` 
 environment with conda
 ```
 conda env create -f environment.yml
 ```
-This environment contains `snakemake` and all the bioinformatics tools (`samtools`, `gatk` etc)
-needed for the workflow. You'll need to activate the workflow with `conda activate ngs-pipeline`
-before you can use `snakemake`
+This environment contains `snakemake` and the other executables (`samtools`, `gatk` etc) that you'll
+need for data analysis.
+
+4. Activate the environment with
+```
+conda activate ngs-pipeline
+```
+If you plan to use this environment frequently, its useful to create a bash alias for quick access.
+Add this code to `.bashrc`
+```
+alias ngs='conda activate ngs-pipeline
+```
+After reloading `.bashrc` with `source .bashrc`, you can enable the environment by typing `ngs` at the console.
+
+5. Configure `config.yml` to tell `ngs-pipeline` where to find important files for the workflow.
+
+| Item                   | Description                                                                          |
+|------------------------|--------------------------------------------------------------------------------------|
+| samples                | CSV file with sample column. Each sample will have both a tumor and normal file      |
+| units                  | CSV file the following columns: sample, type, platform, fq1, and fq2                 |
+| ref_dir                | Filepath to directory where the reference directory is located                       |
+| ref_fasta              | Name of the genome assembly file                                                     |
+| known_sites            | Comma separated string with list of files with sites of known mutations              |
+| exome_targets          | BED file with segments for coverage analysis                                         |
+| germline_resource      | File with germline variants for Mutect2                                              |
+| contamination_resource | File with biallelic germline variants for CalculateContamination                     |
+
+`ref_fasta` and `known_sites` are expected to be in `ref_dir`. Only specify the filenames without paths.
+In `ngs-pipeline`, each sample represents one patient. There should be normal and tumor sequencing data for each
+sample. Each sample should have two rows in `units`, one normal row and one tumor row. Sequencing data must be
+paired, so both `fq1` and `fq2` must be specified.
+
 
 ## Usage
-Clone `ngs-pipelines` into the directory where your data is stored. After
-specifying the `samples.csv` and `units.csv` run the desired pipeline with
-```
-conda activate snakemake
-snakemake [pipeline]
-```
 
-## Slurm Parallelism
-https://hpc-carpentry.github.io/hpc-python/17-cluster/
 
 ## Citations
 This pipeline is based on `dna-seq-gatk-variant-calling` by 
