@@ -33,7 +33,7 @@ need for data analysis.
 ```
 conda activate ngs-pipeline
 ```
-If you plan to use this environment frequently, its useful to create a bash alias for quick access.
+If you plan to use this environment frequently, it's useful to create a bash alias for quick access.
 Add this code to `.bashrc`
 ```
 alias ngs='conda activate ngs-pipeline'
