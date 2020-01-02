@@ -10,11 +10,12 @@ If it's not already installed, go [here](https://www.anaconda.com/distribution/)
 to download and install Anaconda.
 
 Before you start setting up the pipeline, make sure you have your reference genome assembled.
-The GRCh38 (hg38) genome is available from on the Broad's
+The GRCh38 (hg38) genome is available on the Broad's
 GATK [website](https://software.broadinstitute.org/gatk/download/bundle). 
 
 After downloading the assembly files, run `bwa index` on the FASTA file and save the
-index files to the same directory where the assembly files are stored. 
+index files to the same directory where the assembly files are stored. `bwa mem` won't
+run properly without these index files.
 
 ## Setup
 First clone this repository and then create the `ngs-pipeline` 
