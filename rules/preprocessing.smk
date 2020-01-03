@@ -92,10 +92,12 @@ rule bqsr:
         bai="bams/{sample}.{type}.bai",
         md5="bams/{sample}.{type}.bam.md5",
         recal="qc/{sample}.{type}.recal_data.table"
+    params:
+        ks=['--known-sites ' + s for s in known_sites]
     shell:
         """
         gatk BaseRecalibrator -I {input.bam} -R {input.ref} -O {output.recal} \
-            --known-sites {input.known}
+            {params.ks}
         gatk ApplyBQSR -I {input.bam} -R {input.ref} -O {output.bam} -bqsr {output.recal} \
             --static-quantized-quals 10 --static-quantized-quals 20 \
             --static-quantized-quals 30 --add-output-sam-program-record \
