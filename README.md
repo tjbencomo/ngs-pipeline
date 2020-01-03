@@ -1,7 +1,7 @@
 # ngs-pipeline
 **CURRENTLY IN DEVELOPMENT**
 
-NGS pipeline for calling somatic variants from whole exome sequencing (WES) data
+NGS pipeline for calling somatic variants from whole exome sequencing (WES) data using GATK Best Practices and Mutect2
 
 ## Prerequisites
 `conda` is required for `snakemake` and the bioinformatics executables.
@@ -92,7 +92,7 @@ on login node processes, it's advisable to run the snakemake command that submit
 to the cluster on the login node with `screen` and `nohup`.
 You can launch the analysis with cluster execution by typing
 ```
-snakemake --cluster-config cluster.json -j 100 --cluster "sbatch -p {cluster.partition} -t {cluster.time} --mem {cluster.mem}  -c {cluster.ncpus}"
+snakemake --cluster-config cluster.json -j 100 --cluster 'sbatch -p {cluster.partition} -t {cluster.time} --mem {cluster.mem}  -c {cluster.ncpus}'
 ```
 The benefit of this approach is `snakemake` temporary files are supported, so the analysis will
 only create 4 files per sample: `{sample}.normal.bam`, `{sample}.tumor.bam`, `{sample}.vcf`, `{sample}_m2.bam`.
@@ -117,7 +117,7 @@ chmod +x parseJobID.sh
 
 Then run snakemake with
 ```
-snakemake --cluster-config cluster.json --cluster "sbatch $(./parseJobID.sh {dependencies}) -t {cluster.time} --mem {cluster.mem} -p {cluster.partition} -c {cluster.ncpus}" --jobs 100 --notemp --immediate-submit
+snakemake --cluster-config cluster.json --cluster 'sbatch $(./parseJobID.sh {dependencies}) -t {cluster.time} --mem {cluster.mem} -p {cluster.partition} -c {cluster.ncpus}' --jobs 100 --notemp --immediate-submit
 ```
 
 
