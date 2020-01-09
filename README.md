@@ -95,9 +95,8 @@ You can launch the analysis with cluster execution by typing
 snakemake --cluster-config cluster.json -j 100 --cluster 'sbatch -p {cluster.partition} -t {cluster.time} --mem {cluster.mem}  -c {cluster.ncpus}'
 ```
 The benefit of this approach is `snakemake` temporary files are supported, so the analysis will
-only create 4 files per sample: `{sample}.normal.bam`, `{sample}.tumor.bam`, `{sample}.vcf`, `{sample}_m2.bam`.
-These files are the analysis ready bams, final filtered somatic calls, and the accompanying bam file 
-for IGV viewing.
+only create 3 files per sample: `{sample}.normal.bam`, `{sample}.tumor.bam`, `{sample}.vcf`.
+These files are the analysis ready bams and final filtered somatic calls.
 
 2. Submit all jobs to the queue immediately 
 If your cluster has login node time limits or there are several login nodes, you may not be able to use
