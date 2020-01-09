@@ -12,8 +12,7 @@ rule mutect2:
         ref=ref_fasta,
         germ_res=germline_resource
     output:
-        vcf=temp("vcfs/{sample}.unfiltered.vcf"),
-        bam="bams/mutect2/{sample}_m2.bam"
+        vcf=temp("vcfs/{sample}.unfiltered.vcf")
     params:
         tumor="{sample}.tumor",
         normal="{sample}.normal",
@@ -22,7 +21,7 @@ rule mutect2:
         """
         gatk Mutect2 -R {input.ref} -I {input.normal} -I {input.tumor} \
             -normal {params.normal} -tumor {params.tumor} -O {output.vcf} \
-            -bamout {output.bam} --germline-resource {input.germ_res} \
+            --germline-resource {input.germ_res} \
             {params.extra}
         """
 
