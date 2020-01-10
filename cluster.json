@@ -5,7 +5,8 @@
         "time" : "00:10:00",
         "ncpus" : 1,
         "mem" : "1G",
-        "partition" : "normal"
+        "partition" : "normal",
+        "out" : "/scratch/users/tbencomo/logs/slurm-{jobid}.out",
     },
     "combine_fqs" :
     {
