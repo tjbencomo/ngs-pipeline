@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+description: an entry in the unit sheet
+properties:
+    sample:
+        type: string
+        description: patient name/identifier
+    type:
+        type: string
+        description: either normal or tumor
+    platform:
+        type: string
+        description: must be ILLUMINA
+    fq1:
+        type: string
+        description: filepath for first FASTQ file
+    fq2:
+        type: string
+        description: filepath for second FASTQ file
+
+required:
+    - sample
+    - type
+    - platform
+    - fq1
+    - fq2
