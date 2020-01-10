@@ -40,21 +40,8 @@ alias ngs='conda activate ngs-pipeline'
 ```
 After reloading `.bashrc` with `source .bashrc`, you can enable the environment by typing `ngs` at the console.
 
-5. Configure `config.yml` to tell `ngs-pipeline` where to find important files for the workflow.
-
-| Item                   | Description                                                                          |
-|------------------------|--------------------------------------------------------------------------------------|
-| samples                | CSV file with sample column. Each sample will have both a tumor and normal file      |
-| units                  | CSV file the following columns: sample, type, platform, fq1, and fq2                 |
-| ref_dir                | Filepath to directory where the reference directory is located                       |
-| ref_fasta              | Name of the genome assembly file                                                     |
-| known_sites            | Comma separated string with list of files with sites of known mutations              |
-| exome_targets          | BED file with segments for coverage analysis                                         |
-| germline_resource      | File with germline variants for Mutect2                                              |
-| contamination_resource | File with biallelic germline variants for CalculateContamination                     |
-
-`ref_fasta` and `known_sites` are expected to be in `ref_dir`. Only specify the filenames without paths.
-In `ngs-pipeline`, each sample represents one patient. There should be normal and tumor sequencing data for each
+5. Configure `config.yml` to tell `ngs-pipeline` where to find important files for the workflow. See `schemas/config.schema.yaml` for info about each required field. Note that each sample 
+represents one patient. There should be normal and tumor sequencing data for each
 sample. Each sample should have two rows in `units`, one normal row and one tumor row. Sequencing data must be
 paired, so both `fq1` and `fq2` must be specified.
 
@@ -84,6 +71,8 @@ After the analysis is complete don't forget to check `qc/multiqc_report.html` fo
 quality control results about the analysis.
 
 ### SLURM
+First edit the `out` field in `cluster.json` to tell SLURM where to save pipeline `stdout` and `stderr`.
+
 There are two options to run the analysis on a SLURM cluster
 
 1. Run snakemake process on node using `screen` and `nohup`
@@ -92,7 +81,7 @@ on login node processes, it's advisable to run the snakemake command that submit
 to the cluster on the login node with `screen` and `nohup`.
 You can launch the analysis with cluster execution by typing
 ```
-snakemake --cluster-config cluster.json -j 100 --cluster 'sbatch -p {cluster.partition} -t {cluster.time} --mem {cluster.mem}  -c {cluster.ncpus}'
+snakemake --cluster-config cluster.json -j 100 --cluster 'sbatch -p {cluster.partition} -t {cluster.time} --mem {cluster.mem}  -c {cluster.ncpus} -o {cluster.out}'
 ```
 The benefit of this approach is `snakemake` temporary files are supported, so the analysis will
 only create 3 files per sample: `{sample}.normal.bam`, `{sample}.tumor.bam`, `{sample}.vcf`.
@@ -116,7 +105,7 @@ chmod +x parseJobID.sh
 
 Then run snakemake with
 ```
-snakemake --cluster-config cluster.json --cluster 'sbatch $(./parseJobID.sh {dependencies}) -t {cluster.time} --mem {cluster.mem} -p {cluster.partition} -c {cluster.ncpus}' --jobs 100 --notemp --immediate-submit
+snakemake --cluster-config cluster.json --cluster 'sbatch $(./parseJobID.sh {dependencies}) -t {cluster.time} --mem {cluster.mem} -p {cluster.partition} -c {cluster.ncpus} - o {cluster.out}' --jobs 100 --notemp --immediate-submit
 ```
 
 
