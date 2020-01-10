@@ -1,0 +1,9 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+description: an entry in the sample sheet
+properties:
+    sample:
+        type: string
+        description: patient name/identifier
+required:
+    - sample

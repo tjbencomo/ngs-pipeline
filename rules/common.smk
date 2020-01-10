@@ -7,10 +7,16 @@
 
 import sys
 import pandas as pd
+from snakemake.utils import validate
+from snakemake.utils import min_version
+
+min_version("5.9.1")
 
 configfile: "config.yaml"
+validate(config, schema = "../schemas/config.schema.yaml")
 samples = pd.read_csv(config['samples'])['sample']
 units = pd.read_csv(config['units'], dtype=str).set_index(["sample", "type"], drop=False)
+validate(units, schema = "../schemas/units.schema.yaml")
 ref_dir = config['ref_dir']
 ref_fasta = os.path.join(ref_dir, config['ref_fasta'])
 known_sites = config['known_sites'].replace(' ', '').split(',')

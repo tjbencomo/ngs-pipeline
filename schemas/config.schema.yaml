@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+description: ngs-pipeline configuration file
+
+type: object
+
+properties:
+    samples:
+        type: string
+        description: filepath to CSV file with sample column
+    units:
+        type: string
+        description: filepath to CSV file with detailed info on each sample
+    ref_dir:
+        type: string
+        description: filepath to directory where reference genome assembly is located
+    ref_fasta:
+        type: string
+        description: filename of reference genome FASTA file - must be in ref_dir
+    known_sites:
+        type: string
+        description: comma separated list of filenames containing known variants. These files should be in ref_dir
+    exome_targets:
+        type: string
+        description: filepath of BED file with exome intervals for coverage evaluation
+    germline_resource:
+        type: string
+        description: filepath to gnomAD allele frequency only VCF file - can be downloaded from GATK Resource Bundle
+    contamination_resource:
+        type: string
+        description: filepath to VCF file with gnomAD biallelic variants - can be downloaded from GATK Resource Bundle
+
+required:
+    - samples
+    - units
+    - ref_dir
+    - ref_fasta
+    - known_sites
+    - exome_targets
+    - germline_resource
+    - contamination_resource
