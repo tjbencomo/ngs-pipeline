@@ -108,6 +108,13 @@ Then run snakemake with
 snakemake --cluster-config cluster.json --cluster 'sbatch $(./parseJobID.sh {dependencies}) -t {cluster.time} --mem {cluster.mem} -p {cluster.partition} -c {cluster.ncpus} - o {cluster.out}' --jobs 100 --notemp --immediate-submit
 ```
 
+## Test Dataset
+A small sample of `chr21` reads are supplied from the 
+[Texas Cancer Research Biobank](http://txcrb.org/index.html) for
+end-to-end pipeline tests. 
+This data is made available as open access data with minimal privacy
+restrictions. Please read the [Conditions of Use](http://txcrb.org/data.html)
+before using the data.
 
 ## Citations
 This pipeline is based on `dna-seq-gatk-variant-calling` by 
