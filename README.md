@@ -57,40 +57,34 @@ This will run multiple rules simultaneously, speeding up the analysis.
 After the analysis is complete don't forget to check `qc/multiqc_report.html` for
 quality control results about the analysis.
 
-### SLURM
-First edit the `out` field in `cluster.json` to tell SLURM where to save pipeline `stdout` and `stderr`.
 
-There are two options to run the analysis on a SLURM cluster
+### Cluster Execution
+If you're using a compute cluster, you can take advantage of massively
+parallel computation to speed up the analysis. Only SLURM clusters are
+currently supported, but if you work with another cluster system (SGE etc)
+`snakemake` makes it relatively easy to add cluster support.
 
-1. Run snakemake process on node using `screen` and `nohup`
-If you can reliably access a specific login node and there isn't a time limit
-on login node processes, it's advisable to run the snakemake command that submits jobs
-to the cluster on the login node with `screen` and `nohup`.
-You can launch the analysis with cluster execution by typing
+Follow these instructions to enable SLURM usage
+1. Edit the `out` field in `cluster.json` to tell SLURM where to save pipeline `stdout` and `stderr`.
+2. Run `snakemake` from the command line with the following options
 ```
 snakemake --cluster-config cluster.json -j 100 --cluster 'sbatch -p {cluster.partition} -t {cluster.time} --mem {cluster.mem}  -c {cluster.ncpus} -o {cluster.out}'
 ```
-The benefit of this approach is `snakemake` temporary files are supported, so the analysis will
-only create 3 files per sample: `{sample}.normal.bam`, `{sample}.tumor.bam`, `{sample}.vcf`.
-These files are the analysis ready bams and final filtered somatic calls.
+This command can be run in an `sbatch` job.
+In the `sbatch` script, don't forget to `conda activate`
+before running snakemake.
 
-2. Submit all jobs to the queue immediately 
-If your cluster has login node time limits or there are several login nodes, you may not be able to use
-the first option. Time limits may kill the snakemake process prematurely. If there are several login nodes
-and it varies which login node you're assigned to when you sign in, you may not be able to retrieve the process
-if you launch it on one login node and then sign back in on another node.
-
-To circumvent these problems, it's possible to submit all the jobs immediately to the queue,
-returning control to the user. Unfortunately this approach doesn't support temporary files, so there will
-be  intermediate files that you'll have to ignore or manually delete.
-
-
-First give `parseJobID.sh` permission to run with
+If for some reason you can't leave the master `snakemake` process running, `snakemake`
+offers the ability to launch all jobs using `--immediate-submit`. This
+approach will submit all jobs to the queue immediately and finish the master `snakemake`
+process. The downside of this method is that temporary files are not supported, so
+the results directories will be very cluttered. 
+To use `--immediate-submit` follow these steps
+1. Give `parseJobID.sh` permission to run
 ```
 chmod +x parseJobID.sh
 ```
-
-Then run snakemake with
+2. Submit the `snakemake` jobs
 ```
 snakemake --cluster-config cluster.json --cluster 'sbatch $(./parseJobID.sh {dependencies}) -t {cluster.time} --mem {cluster.mem} -p {cluster.partition} -c {cluster.ncpus} - o {cluster.out}' --jobs 100 --notemp --immediate-submit
 ```
