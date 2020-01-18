@@ -3,7 +3,7 @@ include: "rules/common.smk"
 rule targets:
     input:
         expand("bams/{sample}.{type}.bam", sample=samples, type=types),
-        expand("vcfs/{sample}.vcf", sample=samples),
+        expand("vcfs/{sample}.vcf.gz", sample=samples),
         expand("{ref_fasta}.{suffix}", ref_fasta=ref_fasta, suffix=file_suffixes),
         "qc/multiqc_report.html"
 

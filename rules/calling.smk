@@ -53,14 +53,15 @@ rule filter_calls:
         ref=ref_fasta,
         contamination="qc/{sample}_contamination.table"
     output:
-        vcf="vcfs/{sample}.vcf",
+        vcf="vcfs/{sample}.vcf.gz",
+        idx="vcfs/{sample}.vcf.gz.tbi",
         intermediate=temp("vcfs/{sample}.unselected.vcf")
     shell:
         """
         gatk FilterMutectCalls -V {input.vcf} -R {input.ref} \
             --contamination-table {input.contamination} -O {output.intermediate}
         gatk SelectVariants -V {output.intermediate} -R {input.ref} -O {output.vcf} \
-            --exclude-filtered
+            --exclude-filtered -OVI
         """
 
 
