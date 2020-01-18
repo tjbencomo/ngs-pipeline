@@ -27,7 +27,10 @@ need for data analysis.
 conda activate ngs-pipeline
 ```
 
-5. Configure `config.yml` to tell `ngs-pipeline` where to find important files for the workflow. See `schemas/config.schema.yaml` for info about each required field. Note that each sample 
+5. Edit `samples.csv` and `units.csv` with details about the samples you wish to analyze.
+See the `schemas/` directory for details about each file.
+
+6. Configure `config.yml` to tell `ngs-pipeline` where to find important files for the workflow. See `schemas/config.schema.yaml` for info about each required field. Note that each sample 
 represents one patient. There should be normal and tumor sequencing data for each
 sample. Each sample should have two rows in `units`, one normal row and one tumor row. Sequencing data must be
 paired, so both `fq1` and `fq2` must be specified.
