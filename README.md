@@ -10,12 +10,7 @@ to download and install Anaconda.
 
 Before you start setting up the pipeline, make sure you have your reference genome assembled.
 The GRCh38 (hg38) genome is available on the Broad's
-GATK [website](https://software.broadinstitute.org/gatk/download/bundle). 
-
-After downloading the assembly files, run `bwa index` on the FASTA file and save the
-index files to the same directory where the assembly files are stored. `bwa mem` won't
-run properly without these index files.
-
+GATK [website](https://software.broadinstitute.org/gatk/download/bundle).
 ## Setup
 
 1. Create a new Github repository using this workflow as a template with the `Use this template` button
@@ -33,12 +28,6 @@ need for data analysis.
 ```
 conda activate ngs-pipeline
 ```
-If you plan to use this environment frequently, it's useful to create a bash alias for quick access.
-Add this code to `.bashrc`
-```
-alias ngs='conda activate ngs-pipeline'
-```
-After reloading `.bashrc` with `source .bashrc`, you can enable the environment by typing `ngs` at the console.
 
 5. Configure `config.yml` to tell `ngs-pipeline` where to find important files for the workflow. See `schemas/config.schema.yaml` for info about each required field. Note that each sample 
 represents one patient. There should be normal and tumor sequencing data for each
