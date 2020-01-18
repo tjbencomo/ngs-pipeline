@@ -25,6 +25,7 @@ capture_bed = config['exome_targets']
 germline_resource = config['germline_resource']
 contamination_resource = config['contamination_resource']
 types = ['normal', 'tumor']
+file_suffixes= ['amb', 'ann', 'bwt', 'pac', 'sa']
 
 wildcard_constraints:
     sample="|".join(samples),
@@ -40,4 +41,3 @@ def get_platform(wildcards):
 def get_call_pair(wildcards):
     return {'normal' : f"bams/{wildcards.sample}.normal.bam",
             'tumor' : f"bams/{wildcards.sample}.tumor.bam"}
-

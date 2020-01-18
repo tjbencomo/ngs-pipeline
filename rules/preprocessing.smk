@@ -22,6 +22,17 @@ rule combine_fqs:
             -PL {params.pl}
         """
 
+
+rule bwa_index:
+    input:
+        ref_fasta
+    output:
+        [f"{ref_fasta}.{suffix}" for suffix in file_suffixes]
+    shell:
+        """
+        bwa index {input}
+        """
+
 rule bwa:
     input:
         bam="bams/{sample}.{type}.unaligned.bam",
