@@ -12,7 +12,9 @@ rule mutect2:
         ref=ref_fasta,
         germ_res=germline_resource
     output:
-        vcf=temp("vcfs/{sample}.unfiltered.vcf")
+        vcf=temp("vcfs/{sample}.unfiltered.vcf"),
+        idx=temp("vcfs/{sample}.unfiltered.vcf.idx"),
+        stats=temp("vcfs/{sample}.unfiltered.vcf.stats")
     params:
         tumor="{sample}.tumor",
         normal="{sample}.normal",
@@ -55,7 +57,9 @@ rule filter_calls:
     output:
         vcf="vcfs/{sample}.vcf.gz",
         idx="vcfs/{sample}.vcf.gz.tbi",
-        intermediate=temp("vcfs/{sample}.unselected.vcf")
+        intermediate=temp("vcfs/{sample}.unselected.vcf"),
+        inter_idx=temp("vcfs/{sample}.unselected.vcf.filteringStats.tsv"),
+        inter_stats=temp("vcfs/{sample}.unselected.vcf.idx")
     shell:
         """
         gatk FilterMutectCalls -V {input.vcf} -R {input.ref} \
@@ -63,7 +67,4 @@ rule filter_calls:
         gatk SelectVariants -V {output.intermediate} -R {input.ref} -O {output.vcf} \
             --exclude-filtered -OVI
         """
-
-
-
 
