@@ -1,0 +1,5 @@
+name: pandas
+channels:
+    - conda-forge
+dependencies:
+    - pandas
