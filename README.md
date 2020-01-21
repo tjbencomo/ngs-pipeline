@@ -42,11 +42,6 @@ After finishing the setup and enabling the `conda` environment, inside the analy
 ```
 snakemake -n
 ```
-If you're processing lots of samples, the dry run may be slow from printing all the rules. Use
-```
-snakemake -n --quiet
-```
-to speed up the dry run.
 Once you're ready to run the analysis navigate to the base directory with `Snakefile` and type
 ```
 snakemake
