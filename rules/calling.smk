@@ -117,3 +117,10 @@ rule vcf2maf:
             --filter-vcf 0 --vep-path $vep_path \
             --center {params.center}
         """
+rule concat_mafs:
+    input:
+        expand("mafs/{sample}.maf", sample=samples)
+    output:
+        "mafs/variants.maf"
+    script:
+        "../scripts/combine_mafs.py"

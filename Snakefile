@@ -3,10 +3,11 @@ include: "rules/common.smk"
 
 rule targets:
     input:
-        expand("bams/{sample}.{type}.bam", sample=samples, type=types),
-        expand("vcfs/{sample}.vcf", sample=samples),
-        expand("mafs/{sample}.maf", sample=samples),
+        #expand("bams/{sample}.{type}.bam", sample=samples, type=types),
+        #expand("vcfs/{sample}.vcf", sample=samples),
+        #expand("mafs/{sample}.maf", sample=samples),
         expand("{ref_fasta}.{suffix}", ref_fasta=ref_fasta, suffix=file_suffixes),
+        "mafs/variants.maf",
         "qc/multiqc_report.html"
 
 include: "rules/preprocessing.smk"
