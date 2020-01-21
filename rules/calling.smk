@@ -115,12 +115,14 @@ rule vcf2maf:
             --ref-fasta {input.fasta} --vep-data {input.vep_dir} \
             --ncbi-build {params.assembly} \
             --filter-vcf 0 --vep-path $vep_path \
-            --center {params.center}
+            --maf-center {params.center}
         """
 rule concat_mafs:
     input:
         expand("mafs/{sample}.maf", sample=samples)
     output:
         "mafs/variants.maf"
+    conda:
+        "../envs/pandas.yml"
     script:
         "../scripts/combine_mafs.py"
