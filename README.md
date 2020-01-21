@@ -9,6 +9,13 @@ to download and install Anaconda.
 Before you start setting up the pipeline, make sure you have your reference genome assembled.
 The GRCh38 (hg38) genome is available on the Broad's
 GATK [website](https://software.broadinstitute.org/gatk/download/bundle).
+
+You'll also need the `cache` and `fasta` files for 
+[Variant Annotation Predictor (VEP)](https://github.com/Ensembl/ensembl-vep).
+Follow the tutorial 
+[here](https://uswest.ensembl.org/info/docs/tools/vep/script/vep_cache.html#cache) 
+to download the data files.
+Don't forget to index the files before running the pipeline.
 ## Setup
 
 1. Create a new Github repository using this workflow as a template with the `Use this template` button
@@ -52,8 +59,11 @@ snakemake -j [cores]
 ```
 This will run multiple rules simultaneously, speeding up the analysis.
 
-After the analysis is complete don't forget to check `qc/multiqc_report.html` for
-quality control results about the analysis.
+The pipeline produces two key files: `mafs/variants.maf` and `qc/multiqc_report.html`.
+`variants.maf` includes somatic variants from all samples that passed Mutect2 filtering.
+They have been annotated with VEP and mapped according to VCF2MAF. `multiqc_report.html`
+includes quality metrics like coverage for the fully processed BAM files. Individual
+VCF files for each sample prior to VCF2MAF mapping are named `{sample}.vcf` in `vcfs/`.
 
 
 ### Cluster Execution

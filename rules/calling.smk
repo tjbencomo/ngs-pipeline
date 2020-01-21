@@ -12,13 +12,15 @@ rule mutect2:
         ref=ref_fasta,
         germ_res=germline_resource
     output:
-        vcf=temp("vcfs/{sample}.unfiltered.vcf"),
-        idx=temp("vcfs/{sample}.unfiltered.vcf.idx"),
-        stats=temp("vcfs/{sample}.unfiltered.vcf.stats")
+        vcf="vcfs/{sample}.unfiltered.vcf",
+        idx="vcfs/{sample}.unfiltered.vcf.idx",
+        stats="vcfs/{sample}.unfiltered.vcf.stats"
     params:
         tumor="{sample}.tumor",
         normal="{sample}.normal",
         extra=""
+    conda:
+        "../envs/gatk.yml"
     shell:
         """
         gatk Mutect2 -R {input.ref} -I {input.normal} -I {input.tumor} \
@@ -33,6 +35,8 @@ rule pileup_summaries:
         germ_res=contamination_resource
     output:
         "qc/{sample}_pileupsummaries.table"
+    conda:
+        "../envs/gatk.yml"
     shell:
         """
         gatk GetPileupSummaries -I {input.bam} -V {input.germ_res} \
@@ -44,6 +48,8 @@ rule calculate_contamination:
         "qc/{sample}_pileupsummaries.table"
     output:
         "qc/{sample}_contamination.table"
+    conda:
+        "../envs/gatk.yml"
     shell:
         """
         gatk CalculateContamination -I {input} -O {output}
@@ -55,11 +61,13 @@ rule filter_calls:
         ref=ref_fasta,
         contamination="qc/{sample}_contamination.table"
     output:
-        vcf="vcfs/{sample}.vcf.gz",
-        idx="vcfs/{sample}.vcf.gz.tbi",
+        vcf=temp("vcfs/{sample}.filtered.vcf.gz"),
+        idx=temp("vcfs/{sample}.filtered.vcf.gz.tbi"),
         intermediate=temp("vcfs/{sample}.unselected.vcf"),
         inter_idx=temp("vcfs/{sample}.unselected.vcf.filteringStats.tsv"),
         inter_stats=temp("vcfs/{sample}.unselected.vcf.idx")
+    conda:
+        "../envs/gatk.yml"
     shell:
         """
         gatk FilterMutectCalls -V {input.vcf} -R {input.ref} \
@@ -68,3 +76,53 @@ rule filter_calls:
             --exclude-filtered -OVI
         """
 
+rule vep:
+    input:
+        vcf="vcfs/{sample}.filtered.vcf.gz",
+        fasta=vep_fasta
+    output:
+        vcf="vcfs/{sample}.vcf",
+        stats="vcfs/{sample}.vcf_summary.html"
+    params:
+        vep_dir = vep_dir,
+        assembly=assembly
+    conda:
+        "../envs/annotation.yml"
+    shell:
+        """
+        vep --cache --offline --hgvs --vcf --assembly {params.assembly} --dir {params.vep_dir}  \
+            -i {input.vcf} -o {output.vcf} --fasta {input.fasta}
+        """
+rule vcf2maf:
+    input:
+        vcf="vcfs/{sample}.vcf",
+        fasta=vep_fasta,
+        vep_dir=vep_dir
+    output:
+        "mafs/{sample}.maf"
+    conda:
+        "../envs/annotation.yml"
+    params:
+        assembly=assembly,
+        center=center
+    shell:
+        """
+        vep_fp=`which vep`
+        vep_path=$(dirname "$vep_fp")
+        vcf2maf.pl --input-vcf {input.vcf} --output-maf {output} \
+            --tumor-id {wildcards.sample}.tumor \
+            --normal-id {wildcards.sample}.normal \
+            --ref-fasta {input.fasta} --vep-data {input.vep_dir} \
+            --ncbi-build {params.assembly} \
+            --filter-vcf 0 --vep-path $vep_path \
+            --maf-center {params.center}
+        """
+rule concat_mafs:
+    input:
+        expand("mafs/{sample}.maf", sample=samples)
+    output:
+        "mafs/variants.maf"
+    conda:
+        "../envs/pandas.yml"
+    script:
+        "../scripts/combine_mafs.py"

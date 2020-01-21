@@ -6,3 +6,7 @@ known_sites: dbsnp.vcf.gz
 exome_targets: data/hg38/hg38.chr21.exons.bed
 germline_resource: data/hg38/gnomad_short.vcf.gz
 contamination_resource: data/hg38/contam_short.vcf.gz
+vep_dir: /home/groups/carilee/refs/vep_data
+vep_fasta: /home/groups/carilee/refs/vep_data/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz 
+assembly_version: GRCh38
+center_name: lee-lab
