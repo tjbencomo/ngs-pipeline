@@ -102,11 +102,18 @@ rule vcf2maf:
         "mafs/{sample}.maf"
     conda:
         "../envs/annotation.yml"
+    params:
+        assembly=assembly,
+        center=center
     shell:
         """
+        vep_fp=`which vep`
+        vep_path=$(dirname "$vep_fp")
         vcf2maf.pl --input-vcf {input.vcf} --output-maf {output} \
             --tumor-id {wildcards.sample}.tumor \
             --normal-id {wildcards.sample}.normal \
             --ref-fasta {input.fasta} --vep-data {input.vep_dir} \
-            --filter-vcf 0
+            --ncbi-build {params.assembly} \
+            --filter-vcf 0 --vep-path $vep_path \
+            --center {params.center}
         """

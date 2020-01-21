@@ -27,6 +27,7 @@ contamination_resource = config['contamination_resource']
 vep_dir = config['vep_dir']
 vep_fasta = config['vep_fasta']
 assembly = config['assembly_version']
+center = config['center_name']
 types = ['normal', 'tumor']
 file_suffixes= ['amb', 'ann', 'bwt', 'pac', 'sa']
 

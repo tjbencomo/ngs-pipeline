@@ -38,6 +38,9 @@ properties:
     assembly_version:
         type: string
         description: name of assembly to use. Use GRCh38 if you did a vanilla VEP install
+    center_name:
+        type: string
+        description: name of lab where data was processed. Included in the MAF file generated from vcf2maf
 
 required:
     - samples
@@ -51,3 +54,4 @@ required:
     - vep_dir
     - vep_fasta
     - assembly_version
+    - center_name
