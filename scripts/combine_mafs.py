@@ -4,28 +4,14 @@ Author: Tomas Bencomo
 Email: tjbencomo@gmail.com
 Description:
     This script concatenates a list of MAF formatted files
-    into a single MAF file
+    into a single MAF file. Designed to aggregate variants
+    from many samples into a single analysis-wide MAF file.
 """
 
 import os
 import sys
 import argparse
 import pandas as pd
-
-def get_args():
-    """
-    Not needed with snakemake handling input arguments, but useful if
-    you're going to use this as a standalone script
-    """
-    parser = argparse.ArgumentParser(description="Combine MAF files")
-    parser.add_argument('files', metavar='MAF', type=str, nargs='+',
-                                help='Space separated list of MAF files')
-    args = parser.parse_args()
-    files = args.files
-    for f in files:
-        if not os.path.isfile(f):
-            raise ValueError(f"File {f} is not a file or doesn't exist!")
-    return args.files
 
 def concat_mafs(files):
     mafs = []
