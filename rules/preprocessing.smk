@@ -14,6 +14,8 @@ rule combine_fqs:
         temp("bams/{sample}.{type}.unaligned.bam")
     params:
         pl=get_platform
+    conda:
+        "../envs/gatk.yml"
     shell:
         """
         gatk FastqToSam -F1 {input.r1} -F2 {input.r2} -O {output} \
@@ -28,6 +30,8 @@ rule bwa_index:
         ref_fasta
     output:
         [f"{ref_fasta}.{suffix}" for suffix in file_suffixes]
+    conda:
+        "../envs/gatk.yml"
     shell:
         """
         bwa index {input}
@@ -40,6 +44,8 @@ rule bwa:
     output:
         temp("bams/{sample}.{type}.aligned.bam")
     threads: 8
+    conda:
+        "../envs/gatk.yml"
     shell:
         """
         gatk SamToFastq -I {input.bam} -F /dev/stdout -INTER true -NON_PF true \
@@ -57,6 +63,8 @@ rule merge_bams:
         ref=ref_fasta
     output:
         temp("bams/{sample}.{type}.merged.bam")
+    conda:
+        "../envs/gatk.yml"
     shell:
         """
         gatk MergeBamAlignment -UNMAPPED {input.unaligned} -ALIGNED {input.aligned} \
@@ -70,6 +78,8 @@ rule mark_duplicates:
         bam=temp("bams/{sample}.{type}.markdups.bam"),
         md5=temp("bams/{sample}.{type}.markdups.bam.md5"),
         metrics="qc/gatk/{sample}_{type}_dup_metrics.txt"
+    conda:
+        "../envs/gatk.yml"
     shell:
         """
         gatk MarkDuplicates -I {input} -O {output.bam} -M {output.metrics} \
@@ -84,6 +94,8 @@ rule sort_fix_tags:
         bam=temp("bams/{sample}.{type}.sorted.bam"),
         bai=temp("bams/{sample}.{type}.sorted.bai"),
         md5=temp("bams/{sample}.{type}.sorted.bam.md5")
+    conda:
+        "../envs/gatk.yml"
     shell:
         """
         gatk SortSam -I {input.bam} -O /dev/stdout --SORT_ORDER "coordinate" \
@@ -105,6 +117,8 @@ rule bqsr:
         recal="qc/{sample}.{type}.recal_data.table"
     params:
         ks=['--known-sites ' + s for s in known_sites]
+    conda:
+        "../envs/gatk.yml"
     shell:
         """
         gatk BaseRecalibrator -I {input.bam} -R {input.ref} -O {output.recal} \
@@ -122,6 +136,8 @@ rule exome_cov:
     output:
         "qc/{sample}_{type}.mosdepth.region.dist.txt"
     threads: 4
+    conda:
+        "../envs/qc.yml"
     shell:
         """
         mosdepth --by {input.exons} -t {threads} qc/{wildcards.sample}_{wildcards.type} \
@@ -133,6 +149,8 @@ rule stats:
         "bams/{sample}.{type}.bam"
     output:
         "qc/{sample}.{type}.flagstat"
+    conda:
+        "../envs/gatk.yml"
     shell:
         """
         samtools flagstat {input} > {output}
@@ -144,6 +162,8 @@ rule fastqc:
     output:
         html="qc/fastqc/{sample}_{type}.html",
         zip="qc/fastqc/{sample}_{type}_fastqc.zip"
+    conda:
+        "../envs/qc.yml"
     wrapper:
         "0.45.0/bio/fastqc"
 
@@ -155,6 +175,8 @@ rule multiqc:
         expand("qc/{sample}.{type}.flagstat", sample=samples, type=types)
     output:
         "qc/multiqc_report.html"
+    conda:
+        "../envs/qc.yml"
     shell:
         """
         multiqc {input} -o qc/

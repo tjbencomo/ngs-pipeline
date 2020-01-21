@@ -1,3 +1,4 @@
+singularity: "docker://continuumio/miniconda3"
 include: "rules/common.smk"
 
 rule targets:
