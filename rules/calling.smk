@@ -81,7 +81,7 @@ rule vep:
         vcf="vcfs/{sample}.filtered.vcf.gz",
         fasta=vep_fasta
     output:
-        vcf="vcfs/{sample}..vcf",
+        vcf="vcfs/{sample}.vcf",
         stats="vcfs/{sample}.vcf_summary.html"
     params:
         vep_dir = vep_dir,
@@ -92,4 +92,21 @@ rule vep:
         """
         vep --cache --offline --hgvs --vcf --assembly {params.assembly} --dir {params.vep_dir}  \
             -i {input.vcf} -o {output.vcf} --fasta {input.fasta}
+        """
+rule vcf2maf:
+    input:
+        vcf="vcfs/{sample}.vcf",
+        fasta=vep_fasta,
+        vep_dir=vep_dir
+    output:
+        "mafs/{sample}.maf"
+    conda:
+        "../envs/annotation.yml"
+    shell:
+        """
+        vcf2maf.pl --input-vcf {input.vcf} --output-maf {output} \
+            --tumor-id {wildcards.sample}.tumor \
+            --normal-id {wildcards.sample}.normal \
+            --ref-fasta {input.fasta} --vep-data {input.vep_dir} \
+            --filter-vcf 0
         """
