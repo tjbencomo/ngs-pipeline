@@ -61,8 +61,8 @@ rule filter_calls:
         ref=ref_fasta,
         contamination="qc/{sample}_contamination.table"
     output:
-        vcf="vcfs/{sample}.vcf.gz",
-        idx="vcfs/{sample}.vcf.gz.tbi",
+        vcf=temp("vcfs/{sample}.filtered.vcf.gz"),
+        idx=temp("vcfs/{sample}.filtered.vcf.gz.tbi"),
         intermediate=temp("vcfs/{sample}.unselected.vcf"),
         inter_idx=temp("vcfs/{sample}.unselected.vcf.filteringStats.tsv"),
         inter_stats=temp("vcfs/{sample}.unselected.vcf.idx")
@@ -76,3 +76,20 @@ rule filter_calls:
             --exclude-filtered -OVI
         """
 
+rule vep:
+    input:
+        vcf="vcfs/{sample}.filtered.vcf.gz",
+        fasta=vep_fasta
+    output:
+        vcf="vcfs/{sample}..vcf",
+        stats="vcfs/{sample}.vcf_summary.html"
+    params:
+        vep_dir = vep_dir,
+        assembly=assembly
+    conda:
+        "../envs/annotation.yml"
+    shell:
+        """
+        vep --cache --offline --hgvs --vcf --assembly {params.assembly} --dir {params.vep_dir}  \
+            -i {input.vcf} -o {output.vcf} --fasta {input.fasta}
+        """
