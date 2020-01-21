@@ -1,0 +1,7 @@
+name: annotation
+channels:
+     - bioconda
+     - conda-forge
+dependencies:
+    - ensembl-vep=99.0
+    - vcf2maf=1.6.17
