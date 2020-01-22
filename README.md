@@ -1,11 +1,10 @@
 # ngs-pipeline
 NGS pipeline for calling somatic variants from whole exome sequencing (WES) data using GATK Best Practices and Mutect2
 
-## Prerequisites
-`conda` is required for `snakemake` and the bioinformatics executables.
-If it's not already installed, go [here](https://www.anaconda.com/distribution/) 
-to download and install Anaconda.
+## Author
+* Tomas Bencomo ([https://tjbencomo.github.io](https://tjbencomo.github.io))
 
+## Prerequisites
 Before you start setting up the pipeline, make sure you have your reference genome assembled.
 The GRCh38 (hg38) genome is available on the Broad's
 GATK [website](https://software.broadinstitute.org/gatk/download/bundle).
