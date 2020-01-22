@@ -21,27 +21,31 @@ Don't forget to index the files before running the pipeline.
 1. Create a new Github repository using this workflow as a template with the `Use this template` button
 at the top of this page. This will allow you to track any changes made to the analysis with `git`
 2. Clone the repository to the machine where you want to perform data analysis
-3. Create the `ngs-pipeline` 
-environment with conda
-```
-conda env create -f environment.yml
-```
-This environment contains `snakemake` and the other executables (`samtools`, `gatk` etc) that you'll
-need for data analysis.
-
-4. Activate the environment with
-```
-conda activate ngs-pipeline
-```
-
-5. Edit `samples.csv` and `units.csv` with details about the samples you wish to analyze.
+3. Edit `samples.csv` and `units.csv` with the details for your analysis.
 See the `schemas/` directory for details about each file.
-
-6. Configure `config.yml` to tell `ngs-pipeline` where to find important files for the workflow. See `schemas/config.schema.yaml` for info about each required field. Note that each sample 
+4. Configure `config.yml`. See `schemas/config.schema.yaml` for info about each required field. Note that each sample 
 represents one patient. There should be normal and tumor sequencing data for each
 sample. Each sample should have two rows in `units`, one normal row and one tumor row. Sequencing data must be
-paired, so both `fq1` and `fq2` must be specified.
+paired, so both `fq1` and `fq2` are required.
 
+### Environments
+`snakemake` is required to run `ngs-pipeline`, and other programs (`samtools`, `gatk`, etc)
+are required for various steps in the pipeline. There are many ways to manage the required
+executables.
+
+### Singularity Container + Conda Environments
+`snakemake` can run `ngs-pipeline` in a `singularity` container. Inside this container
+each step is executed with a `conda` environment specified in `envs/`. This approach
+controls the OS and individual packages, ensuring that certain software versions are
+used for analysis. This approach can be enabled with the `--use-conda --use-singularity`
+flags. **This approach is recommended as it is the most reproducible as others can see exactly
+what software versions were used.**
+
+### Other
+Although `conda` and `singularity` are recommended, as long as all the packages are installed
+on your machine, the pipeline will run. You can also only use `conda` environments and
+skip the `singularity` container with `--use-conda`, although this can create difficulties
+reproducing results.
 
 ## Usage
 After finishing the setup and enabling the `conda` environment, inside the analysis directory with
@@ -51,7 +55,7 @@ snakemake -n
 ```
 Once you're ready to run the analysis navigate to the base directory with `Snakefile` and type
 ```
-snakemake
+snakemake --use-conda --use-singularity
 ```
 If your machine has multiple cores, you can use these cores with
 ```
@@ -61,9 +65,9 @@ This will run multiple rules simultaneously, speeding up the analysis.
 
 The pipeline produces two key files: `mafs/variants.maf` and `qc/multiqc_report.html`.
 `variants.maf` includes somatic variants from all samples that passed Mutect2 filtering.
-They have been annotated with VEP and mapped according to VCF2MAF. `multiqc_report.html`
-includes quality metrics like coverage for the fully processed BAM files. Individual
-VCF files for each sample prior to VCF2MAF mapping are named `{sample}.vcf` in `vcfs/`.
+They have been annotated with VEP and labeled by [VCF2MAF](https://github.com/mskcc/vcf2maf). 
+`multiqc_report.html` includes quality metrics like coverage for the fully processed BAM files. 
+Individual VCF files for each sample prior to VCF2MAF mapping are named `{sample}.vcf` in `vcfs/`.
 
 
 ### Cluster Execution
@@ -117,5 +121,6 @@ mosdepth
 fastqc
 multiqc
 vep
+vcf2maf
 ```
 Citations to be added...
