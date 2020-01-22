@@ -28,7 +28,7 @@ represents one patient. There should be normal and tumor sequencing data for eac
 sample. Each sample should have two rows in `units`, one normal row and one tumor row. Sequencing data must be
 paired, so both `fq1` and `fq2` are required.
 
-### Environments
+## Environments
 `snakemake` is required to run `ngs-pipeline`, and other programs (`samtools`, `gatk`, etc)
 are required for various steps in the pipeline. There are many ways to manage the required
 executables.
