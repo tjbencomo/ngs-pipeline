@@ -9,7 +9,7 @@ Before you start setting up the pipeline, make sure you have your reference geno
 The GRCh38 (hg38) genome is available on the Broad's
 GATK [website](https://software.broadinstitute.org/gatk/download/bundle).
 
-You'll also need the `cache` and `fasta` files for 
+You'll also need the `cache` files for 
 [Variant Annotation Predictor (VEP)](https://github.com/Ensembl/ensembl-vep).
 Follow the tutorial 
 [here](https://uswest.ensembl.org/info/docs/tools/vep/script/vep_cache.html#cache) 
