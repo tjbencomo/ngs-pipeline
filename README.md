@@ -37,8 +37,8 @@ executables.
 each step is executed with a `conda` environment specified in `envs/`. This approach
 controls the OS and individual packages, ensuring that certain software versions are
 used for analysis. This approach can be enabled with the `--use-conda --use-singularity`
-flags. **This approach is recommended as it is the most reproducible as others can see exactly
-what software versions were used.**
+flags. **This approach is recommended because using YAMLs to specify environment records the
+software version used for each step, helping others reproduce your results.**
 
 ### Other
 Although `conda` and `singularity` are recommended, as long as all the packages are installed
