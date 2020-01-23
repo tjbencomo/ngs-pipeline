@@ -1,5 +1,5 @@
 # ngs-pipeline
-NGS pipeline for calling somatic variants from whole exome sequencing (WES) data using GATK Best Practices and Mutect2
+NGS pipeline for calling somatic variants from paired end (PE) whole exome sequencing (WES) data using GATK Best Practices and Mutect2
 
 ## Prerequisites
 `conda` is required for `snakemake` and the bioinformatics executables.
