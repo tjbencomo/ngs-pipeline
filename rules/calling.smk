@@ -19,6 +19,7 @@ rule mutect2:
         tumor="{sample}.tumor",
         normal="{sample}.normal",
         extra=""
+    threads: 4
     conda:
         "../envs/gatk.yml"
     shell:
