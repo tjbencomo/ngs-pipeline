@@ -114,19 +114,36 @@ rule bqsr:
         bam="bams/{sample}.{type}.bam",
         bai="bams/{sample}.{type}.bai",
         md5="bams/{sample}.{type}.bam.md5",
-        recal="qc/{sample}.{type}.recal_data.table"
+        pre_recal="qc/{sample}.{type}.recal_data.table"
     params:
         ks=['--known-sites ' + s for s in known_sites]
     conda:
         "../envs/gatk.yml"
     shell:
         """
-        gatk BaseRecalibrator -I {input.bam} -R {input.ref} -O {output.recal} \
+        gatk BaseRecalibrator -I {input.bam} -R {input.ref} -O {output.pre_recal} \
             {params.ks}
-        gatk ApplyBQSR -I {input.bam} -R {input.ref} -O {output.bam} -bqsr {output.recal} \
+        gatk ApplyBQSR -I {input.bam} -R {input.ref} -O {output.bam} -bqsr {output.pre_recal} \
             --static-quantized-quals 10 --static-quantized-quals 20 \
             --static-quantized-quals 30 --add-output-sam-program-record \
             --create-output-bam-md5 --use-original-qualities
+        """
+
+rule post_bqsr:
+    input:
+        bam="bams/{sample}.{type}.bam",
+        known=known_sites,
+        ref=ref_fasta
+    output:
+        post_recal="qc/{sample}.{type}.post_recal_data.table"
+    params:
+        ks=['--known-sites ' + s for s in known_sites]
+    conda:
+        "../envs/gatk.yml"
+    shell:
+        """
+        gatk BaseRecalibrator -I {input.bam} -R {input.ref} -O {output.post_recal} \
+            {params.ks}
         """
 
 rule exome_cov:
@@ -171,6 +188,7 @@ rule multiqc:
     input:
         expand("qc/fastqc/{sample}_{type}_fastqc.zip", sample=samples, type=types),
         expand("qc/{sample}.{type}.recal_data.table", sample=samples, type=types),
+        expand("qc/{sample}.{type}.post_recal_data.table", sample=samples, type=types),
         expand("qc/{sample}_{type}.mosdepth.region.dist.txt", sample=samples, type=types),
         expand("qc/{sample}.{type}.flagstat", sample=samples, type=types)
     output:

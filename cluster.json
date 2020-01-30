@@ -44,6 +44,12 @@
         "ncpus" : 1,
         "mem" : "24G"
     },
+    "post_recal" :
+    {
+        "time" : "4:00:00",
+        "ncpus" : 1,
+        "mem" : "24G"
+    }
     "exome_cov" :
     {
         "time" : "1:00:00",
