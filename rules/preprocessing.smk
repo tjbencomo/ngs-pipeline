@@ -170,7 +170,6 @@ rule fastqc:
 rule multiqc:
     input:
         expand("qc/fastqc/{sample}_{type}_fastqc.zip", sample=samples, type=types),
-        expand("qc/{sample}.{type}.recal_data.table", sample=samples, type=types),
         expand("qc/{sample}_{type}.mosdepth.region.dist.txt", sample=samples, type=types),
         expand("qc/{sample}.{type}.flagstat", sample=samples, type=types)
     output:
