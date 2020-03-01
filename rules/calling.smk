@@ -12,12 +12,12 @@ rule mutect2:
         ref=ref_fasta,
         germ_res=germline_resource
     output:
-        vcf="vcfs/{sample}.unfiltered.vcf",
-        idx="vcfs/{sample}.unfiltered.vcf.idx",
-        stats="vcfs/{sample}.unfiltered.vcf.stats"
+        vcf="vcfs/{patient}.unfiltered.vcf",
+        idx="vcfs/{patient}.unfiltered.vcf.idx",
+        stats="vcfs/{patient}.unfiltered.vcf.stats"
     params:
-        tumor="{sample}.tumor",
-        normal="{sample}.normal",
+        tumor="{patient}.tumor",
+        normal="{patient}.normal",
         extra=""
     threads: 4
     conda:
@@ -32,10 +32,10 @@ rule mutect2:
 
 rule pileup_summaries:
     input:
-        bam="bams/{sample}.tumor.bam",
+        bam="bams/{patient}.tumor.bam",
         germ_res=contamination_resource
     output:
-        "qc/{sample}_pileupsummaries.table"
+        "qc/{patient}_pileupsummaries.table"
     conda:
         "../envs/gatk.yml"
     shell:
@@ -46,9 +46,9 @@ rule pileup_summaries:
 
 rule calculate_contamination:
     input:
-        "qc/{sample}_pileupsummaries.table"
+        "qc/{patient}_pileupsummaries.table"
     output:
-        "qc/{sample}_contamination.table"
+        "qc/{patient}_contamination.table"
     conda:
         "../envs/gatk.yml"
     shell:
@@ -58,15 +58,15 @@ rule calculate_contamination:
 
 rule filter_calls:
     input:
-        vcf="vcfs/{sample}.unfiltered.vcf",
+        vcf="vcfs/{patient}.unfiltered.vcf",
         ref=ref_fasta,
-        contamination="qc/{sample}_contamination.table"
+        contamination="qc/{patient}_contamination.table"
     output:
-        vcf=temp("vcfs/{sample}.filtered.vcf.gz"),
-        idx=temp("vcfs/{sample}.filtered.vcf.gz.tbi"),
-        intermediate=temp("vcfs/{sample}.unselected.vcf"),
-        inter_idx=temp("vcfs/{sample}.unselected.vcf.filteringStats.tsv"),
-        inter_stats=temp("vcfs/{sample}.unselected.vcf.idx")
+        vcf=temp("vcfs/{patient}.filtered.vcf.gz"),
+        idx=temp("vcfs/{patient}.filtered.vcf.gz.tbi"),
+        intermediate=temp("vcfs/{patient}.unselected.vcf"),
+        inter_idx=temp("vcfs/{patient}.unselected.vcf.filteringStats.tsv"),
+        inter_stats=temp("vcfs/{patient}.unselected.vcf.idx")
     conda:
         "../envs/gatk.yml"
     shell:
@@ -79,11 +79,11 @@ rule filter_calls:
 
 rule vep:
     input:
-        vcf="vcfs/{sample}.filtered.vcf.gz",
+        vcf="vcfs/{patient}.filtered.vcf.gz",
         fasta=vep_fasta
     output:
-        vcf="vcfs/{sample}.vcf",
-        stats="vcfs/{sample}.vcf_summary.html"
+        vcf="vcfs/{patient}.vcf",
+        stats="vcfs/{patient}.vcf_summary.html"
     params:
         vep_dir = vep_dir,
         assembly=assembly
@@ -96,11 +96,11 @@ rule vep:
         """
 rule vcf2maf:
     input:
-        vcf="vcfs/{sample}.vcf",
+        vcf="vcfs/{patient}.vcf",
         fasta=vep_fasta,
         vep_dir=vep_dir
     output:
-        "mafs/{sample}.maf"
+        "mafs/{patient}.maf"
     conda:
         "../envs/annotation.yml"
     params:
@@ -111,8 +111,8 @@ rule vcf2maf:
         vep_fp=`which vep`
         vep_path=$(dirname "$vep_fp")
         vcf2maf.pl --input-vcf {input.vcf} --output-maf {output} \
-            --tumor-id {wildcards.sample}.tumor \
-            --normal-id {wildcards.sample}.normal \
+            --tumor-id {wildcards.patient}.tumor \
+            --normal-id {wildcards.patient}.normal \
             --ref-fasta {input.fasta} --vep-data {input.vep_dir} \
             --ncbi-build {params.assembly} \
             --filter-vcf 0 --vep-path $vep_path \
@@ -120,7 +120,7 @@ rule vcf2maf:
         """
 rule concat_mafs:
     input:
-        expand("mafs/{sample}.maf", sample=samples)
+        expand("mafs/{patient}.maf", patient=patients)
     output:
         "mafs/variants.maf"
     conda:
