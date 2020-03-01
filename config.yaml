@@ -1,4 +1,4 @@
-samples: samples.csv
+patients: patients.csv
 units: units.csv
 ref_dir: data/hg38
 ref_fasta: genome.chr21.fa

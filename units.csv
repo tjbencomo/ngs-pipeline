@@ -1,3 +1,3 @@
-sample,type,platform,fq1,fq2
+patient,sample,platform,fq1,fq2
 case01,normal,ILLUMINA,data/tcrb-data/TCRBOA1-N-WEX.R1.fq,data/tcrb-data/TCRBOA1-N-WEX.R2.fq
 case01,tumor,ILLUMINA,data/tcrb-data/TCRBOA1-T-WEX.R1.fq,data/tcrb-data/TCRBOA1-T-WEX.R2.fq

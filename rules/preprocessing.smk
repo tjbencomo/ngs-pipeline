@@ -11,7 +11,7 @@ rule combine_fqs:
     input:
         unpack(get_fastq)
     output:
-        temp("bams/{sample}.{type}.unaligned.bam")
+        temp("bams/{patient}.{sample_type}.unaligned.bam")
     params:
         pl=get_platform
     conda:
@@ -19,8 +19,8 @@ rule combine_fqs:
     shell:
         """
         gatk FastqToSam -F1 {input.r1} -F2 {input.r2} -O {output} \
-            -SM {wildcards.sample}.{wildcards.type} \
-            -RG {wildcards.sample}.{wildcards.type} \
+            -SM {wildcards.patient}.{wildcards.sample_type} \
+            -RG {wildcards.patient}.{wildcards.sample_type} \
             -PL {params.pl}
         """
 
@@ -39,10 +39,10 @@ rule bwa_index:
 
 rule bwa:
     input:
-        bam="bams/{sample}.{type}.unaligned.bam",
+        bam="bams/{patient}.{sample_type}.unaligned.bam",
         ref=ref_fasta
     output:
-        temp("bams/{sample}.{type}.aligned.bam")
+        temp("bams/{patient}.{sample_type}.aligned.bam")
     threads: 8
     conda:
         "../envs/gatk.yml"
@@ -58,11 +58,11 @@ rule bwa:
 
 rule merge_bams:
     input:
-        unaligned="bams/{sample}.{type}.unaligned.bam",
-        aligned="bams/{sample}.{type}.aligned.bam",
+        unaligned="bams/{patient}.{sample_type}.unaligned.bam",
+        aligned="bams/{patient}.{sample_type}.aligned.bam",
         ref=ref_fasta
     output:
-        temp("bams/{sample}.{type}.merged.bam")
+        temp("bams/{patient}.{sample_type}.merged.bam")
     conda:
         "../envs/gatk.yml"
     shell:
@@ -73,11 +73,11 @@ rule merge_bams:
 
 rule mark_duplicates:
     input:
-        "bams/{sample}.{type}.merged.bam"
+        "bams/{patient}.{sample_type}.merged.bam"
     output:
-        bam=temp("bams/{sample}.{type}.markdups.bam"),
-        md5=temp("bams/{sample}.{type}.markdups.bam.md5"),
-        metrics="qc/gatk/{sample}_{type}_dup_metrics.txt"
+        bam=temp("bams/{patient}.{sample_type}.markdups.bam"),
+        md5=temp("bams/{patient}.{sample_type}.markdups.bam.md5"),
+        metrics="qc/gatk/{patient}_{sample_type}_dup_metrics.txt"
     conda:
         "../envs/gatk.yml"
     shell:
@@ -88,12 +88,12 @@ rule mark_duplicates:
 
 rule sort_fix_tags:
     input:
-        bam="bams/{sample}.{type}.markdups.bam",
+        bam="bams/{patient}.{sample_type}.markdups.bam",
         ref=ref_fasta
     output:
-        bam=temp("bams/{sample}.{type}.sorted.bam"),
-        bai=temp("bams/{sample}.{type}.sorted.bai"),
-        md5=temp("bams/{sample}.{type}.sorted.bam.md5")
+        bam=temp("bams/{patient}.{sample_type}.sorted.bam"),
+        bai=temp("bams/{patient}.{sample_type}.sorted.bai"),
+        md5=temp("bams/{patient}.{sample_type}.sorted.bam.md5")
     conda:
         "../envs/gatk.yml"
     shell:
@@ -107,14 +107,14 @@ rule sort_fix_tags:
 
 rule bqsr:
     input:
-        bam="bams/{sample}.{type}.sorted.bam",
+        bam="bams/{patient}.{sample_type}.sorted.bam",
         known=known_sites,
         ref=ref_fasta
     output:
-        bam="bams/{sample}.{type}.bam",
-        bai="bams/{sample}.{type}.bai",
-        md5="bams/{sample}.{type}.bam.md5",
-        recal="qc/{sample}.{type}.recal_data.table"
+        bam="bams/{patient}.{sample_type}.bam",
+        bai="bams/{patient}.{sample_type}.bai",
+        md5="bams/{patient}.{sample_type}.bam.md5",
+        recal="qc/{patient}.{sample_type}.recal_data.table"
     params:
         ks=['--known-sites ' + s for s in known_sites]
     conda:
@@ -131,24 +131,24 @@ rule bqsr:
 
 rule exome_cov:
     input:
-        bam="bams/{sample}.{type}.bam",
+        bam="bams/{patient}.{sample_type}.bam",
         exons=capture_bed
     output:
-        "qc/{sample}_{type}.mosdepth.region.dist.txt"
+        "qc/{patient}_{sample_type}.mosdepth.region.dist.txt"
     threads: 4
     conda:
         "../envs/qc.yml"
     shell:
         """
-        mosdepth --by {input.exons} -t {threads} qc/{wildcards.sample}_{wildcards.type} \
+        mosdepth --by {input.exons} -t {threads} qc/{wildcards.patient}_{wildcards.sample_type} \
             {input.bam}
         """
 
 rule stats:
     input:
-        "bams/{sample}.{type}.bam"
+        "bams/{patient}.{sample_type}.bam"
     output:
-        "qc/{sample}.{type}.flagstat"
+        "qc/{patient}.{sample_type}.flagstat"
     conda:
         "../envs/gatk.yml"
     shell:
@@ -158,10 +158,10 @@ rule stats:
 
 rule fastqc:
     input:
-        "bams/{sample}.{type}.bam"
+        "bams/{patient}.{sample_type}.bam"
     output:
-        html="qc/fastqc/{sample}_{type}.html",
-        zip="qc/fastqc/{sample}_{type}_fastqc.zip"
+        html="qc/fastqc/{patient}_{sample_type}.html",
+        zip="qc/fastqc/{patient}_{sample_type}_fastqc.zip"
     conda:
         "../envs/qc.yml"
     wrapper:
@@ -169,9 +169,9 @@ rule fastqc:
 
 rule multiqc:
     input:
-        expand("qc/fastqc/{sample}_{type}_fastqc.zip", sample=samples, type=types),
-        expand("qc/{sample}_{type}.mosdepth.region.dist.txt", sample=samples, type=types),
-        expand("qc/{sample}.{type}.flagstat", sample=samples, type=types)
+        expand("qc/fastqc/{patient}_{sample_type}_fastqc.zip", patient=patients, sample_type=sample_types),
+        expand("qc/{patient}_{sample_type}.mosdepth.region.dist.txt", patient=patients, sample_type=sample_types),
+        expand("qc/{patient}.{sample_type}.flagstat", patient=patients, sample_type=sample_types)
     output:
         "qc/multiqc_report.html"
     conda:

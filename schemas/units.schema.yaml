@@ -1,10 +1,10 @@
 $schema: "http://json-schema.org/draft-06/schema#"
 description: an entry in the unit sheet
 properties:
-    sample:
+    patient:
         type: string
         description: patient name/identifier
-    type:
+    sample:
         type: string
         description: either normal or tumor
     platform:
@@ -18,8 +18,8 @@ properties:
         description: filepath for second FASTQ file
 
 required:
+    - patient
     - sample
-    - type
     - platform
     - fq1
     - fq2

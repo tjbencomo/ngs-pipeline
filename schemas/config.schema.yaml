@@ -5,9 +5,9 @@ description: ngs-pipeline configuration file
 type: object
 
 properties:
-    samples:
+    patients:
         type: string
-        description: filepath to CSV file with sample column
+        description: filepath to CSV file with patient column
     units:
         type: string
         description: filepath to CSV file with detailed info on each sample
@@ -43,7 +43,7 @@ properties:
         description: name of lab where data was processed. Included in the MAF file generated from vcf2maf
 
 required:
-    - samples
+    - patients
     - units
     - ref_dir
     - ref_fasta
