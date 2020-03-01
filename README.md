@@ -20,11 +20,11 @@ Don't forget to index the files before running the pipeline.
 1. Create a new Github repository using this workflow as a template with the `Use this template` button
 at the top of this page. This will allow you to track any changes made to the analysis with `git`
 2. Clone the repository to the machine where you want to perform data analysis
-3. Edit `samples.csv` and `units.csv` with the details for your analysis.
+3. Edit `patients.csv` and `units.csv` with the details for your analysis.
 See the `schemas/` directory for details about each file.
-4. Configure `config.yml`. See `schemas/config.schema.yaml` for info about each required field. Note that each sample 
-represents one patient. There should be normal and tumor sequencing data for each
-sample. Each sample should have two rows in `units`, one normal row and one tumor row. Sequencing data must be
+4. Configure `config.yml`. See `schemas/config.schema.yaml` for info about each required field. 
+There should be normal and tumor samples for each patient. 
+Each patient should have two rows in `units`, one normal row and one tumor row. Sequencing data must be
 paired, so both `fq1` and `fq2` are required.
 
 ## Environments
@@ -43,8 +43,8 @@ software version used for each step, helping others reproduce your results.**
 ### Other
 Although `conda` and `singularity` are recommended, as long as all the packages are installed
 on your machine, the pipeline will run. You can also only use `conda` environments and
-skip the `singularity` container with `--use-conda`, although this can create difficulties
-reproducing results.
+skip the `singularity` container with `--use-conda`, although this means the OS may be
+different from other users.
 
 ## Usage
 After finishing the setup and enabling the `conda` environment, inside the analysis directory with
@@ -66,7 +66,7 @@ The pipeline produces two key files: `mafs/variants.maf` and `qc/multiqc_report.
 `variants.maf` includes somatic variants from all samples that passed Mutect2 filtering.
 They have been annotated with VEP and labeled by [VCF2MAF](https://github.com/mskcc/vcf2maf). 
 `multiqc_report.html` includes quality metrics like coverage for the fully processed BAM files. 
-Individual VCF files for each sample prior to VCF2MAF mapping are named `{sample}.vcf` in `vcfs/`.
+Individual VCF files for each sample prior to VCF2MAF mapping are named `{patient}.vcf` in `vcfs/`.
 
 
 ### Cluster Execution
