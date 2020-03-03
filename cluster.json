@@ -6,7 +6,7 @@
         "ncpus" : 1,
         "mem" : "1G",
         "partition" : "normal",
-        "out" : "/scratch/users/tbencomo/logs/slurm-{jobid}.out",
+        "out" : "/scratch/users/tbencomo/logs/slurm-{jobid}.out"
     },
     "combine_fqs" :
     {
@@ -103,7 +103,7 @@
         "time" : "00:20:00",
         "ncpus" : 1,
         "mem" : "4G"
-    }
+    },
     "concat_mafs" : 
     {
         "time" : "00:20:00",
