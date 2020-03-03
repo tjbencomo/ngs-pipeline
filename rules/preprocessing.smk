@@ -80,12 +80,12 @@ rule mark_duplicates:
         md5=temp("bams/{patient}.{sample_type}.markdups.bam.md5"),
         metrics="qc/gatk/{patient}_{sample_type}_dup_metrics.txt"
     params:
-        inputs=['-I' + b for b in wildcards.input]
+        input=lambda wildcards, input: " -I  ".join(input)
     conda:
         "../envs/gatk.yml"
     shell:
         """
-        gatk MarkDuplicates -I {input} -O {output.bam} -M {output.metrics} \
+        gatk MarkDuplicates -I {params.input} -O {output.bam} -M {output.metrics} \
             --CREATE_MD5_FILE true --ASSUME_SORT_ORDER "queryname"
         """
 
