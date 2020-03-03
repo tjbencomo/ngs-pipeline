@@ -11,7 +11,7 @@ rule combine_fqs:
     input:
         unpack(get_fastq)
     output:
-        temp("bams/{patient}.{sample_type}.unaligned.bam")
+        temp("bams/{patient}.{sample_type}.{readgroup}.unaligned.bam")
     params:
         pl=get_platform
     conda:
@@ -20,7 +20,7 @@ rule combine_fqs:
         """
         gatk FastqToSam -F1 {input.r1} -F2 {input.r2} -O {output} \
             -SM {wildcards.patient}.{wildcards.sample_type} \
-            -RG {wildcards.patient}.{wildcards.sample_type} \
+            -RG {wildcards.patient}.{wildcards.sample_type}.{wildcards.readgroup} \
             -PL {params.pl}
         """
 
@@ -39,10 +39,10 @@ rule bwa_index:
 
 rule bwa:
     input:
-        bam="bams/{patient}.{sample_type}.unaligned.bam",
+        bam="bams/{patient}.{sample_type}.{readgroup}.unaligned.bam",
         ref=ref_fasta
     output:
-        temp("bams/{patient}.{sample_type}.aligned.bam")
+        temp("bams/{patient}.{sample_type}.{readgroup}.aligned.bam")
     threads: 8
     conda:
         "../envs/gatk.yml"
@@ -58,11 +58,11 @@ rule bwa:
 
 rule merge_bams:
     input:
-        unaligned="bams/{patient}.{sample_type}.unaligned.bam",
-        aligned="bams/{patient}.{sample_type}.aligned.bam",
+        unaligned="bams/{patient}.{sample_type}.{readgroup}.unaligned.bam",
+        aligned="bams/{patient}.{sample_type}.{readgroup}.aligned.bam",
         ref=ref_fasta
     output:
-        temp("bams/{patient}.{sample_type}.merged.bam")
+        temp("bams/{patient}.{sample_type}.{readgroup}.merged.bam")
     conda:
         "../envs/gatk.yml"
     shell:
@@ -73,16 +73,19 @@ rule merge_bams:
 
 rule mark_duplicates:
     input:
-        "bams/{patient}.{sample_type}.merged.bam"
+        get_dedup_input
+        # "bams/{patient}.{sample_type}.merged.bam"
     output:
         bam=temp("bams/{patient}.{sample_type}.markdups.bam"),
         md5=temp("bams/{patient}.{sample_type}.markdups.bam.md5"),
         metrics="qc/gatk/{patient}_{sample_type}_dup_metrics.txt"
+    params:
+        input=lambda wildcards, input: " -I  ".join(input)
     conda:
         "../envs/gatk.yml"
     shell:
         """
-        gatk MarkDuplicates -I {input} -O {output.bam} -M {output.metrics} \
+        gatk MarkDuplicates -I {params.input} -O {output.bam} -M {output.metrics} \
             --CREATE_MD5_FILE true --ASSUME_SORT_ORDER "queryname"
         """
 
@@ -98,6 +101,7 @@ rule sort_fix_tags:
         "../envs/gatk.yml"
     shell:
         """
+
         gatk SortSam -I {input.bam} -O /dev/stdout --SORT_ORDER "coordinate" \
             --CREATE_INDEX false --CREATE_MD5_FILE false \
         | \

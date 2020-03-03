@@ -10,6 +10,9 @@ properties:
     platform:
         type: string
         description: must be ILLUMINA
+    readgroup:
+        type: string
+        description: unique identifier for all reads sequenced in a certain lane (rg1 for FASTQ from lane 1)
     fq1:
         type: string
         description: filepath for first FASTQ file
@@ -20,6 +23,7 @@ properties:
 required:
     - patient
     - sample
+    - readgroup
     - platform
     - fq1
     - fq2
