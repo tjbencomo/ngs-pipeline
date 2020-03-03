@@ -10,19 +10,19 @@
     },
     "combine_fqs" :
     {
-        "time" : "1:30:00",
+        "time" : "2:00:00",
         "ncpus" : 1,
         "mem" : "16G"
     },
     "bwa" :
     {
-        "time" : "2:30:00",
+        "time" : "3:00:00",
         "ncpus" : 8,
         "mem" : "24G"
     },
     "merge_bams" :
     {
-        "time" : "1:30:00",
+        "time" : "2:00:00",
         "ncpus": 1,
         "mem" : "16G"
     },
@@ -52,7 +52,7 @@
     },
     "stats" :
     {
-        "time" : "00:30:00",
+        "time" : "00:45:00",
         "ncpus" : 1,
         "mem" : "16G"
     },
@@ -70,25 +70,25 @@
     },
     "mutect2" :
     {
-        "time" : "18:00:00",
+        "time" : "20:00:00",
         "ncpus" : 4,
         "mem" : "32G"
     },
     "pileup_summaries" :
     {
-        "time" : "00:10:00",
+        "time" : "00:15:00",
         "ncpus" : 1,
         "mem" : "8G"
     },
     "calculate_contamination" :
     {
-        "time" : "00:10:00",
+        "time" : "00:15:00",
         "ncpus" : 1,
         "mem" : "8G"
     },
     "filter_calls" :
     {
-        "time" : "00:10:00",
+        "time" : "00:15:00",
         "ncpus" : 1,
         "mem" : "8G"
     },
