@@ -24,8 +24,9 @@ at the top of this page. This will allow you to track any changes made to the an
 See the `schemas/` directory for details about each file.
 4. Configure `config.yml`. See `schemas/config.schema.yaml` for info about each required field. 
 There should be normal and tumor samples for each patient. 
-Each patient should have two rows in `units`, one normal row and one tumor row. Sequencing data must be
-paired, so both `fq1` and `fq2` are required.
+Each patient should have at least two rows in `units`, one normal row and one tumor row. 
+Multiplexed samples should be differentiated with the `readgroup` column.
+Sequencing data must be paired, so both `fq1` and `fq2` are required.
 
 ## Environments
 `snakemake` is required to run `ngs-pipeline`, and other programs (`samtools`, `gatk`, etc)
