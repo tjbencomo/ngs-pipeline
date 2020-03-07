@@ -109,6 +109,21 @@ This data is made available as open access data with minimal privacy
 restrictions. Please read the [Conditions of Use](http://txcrb.org/data.html)
 before using the data.
 
+## Tips
+### FASTQ Formatting
+The first line of each read (called the sequence identifier) should consist of a single string not separated
+by any spaces. An example of a properly sequence identifier is
+```
+@MGILLUMINA4_74:7:1101:10000:100149
+```
+Sequence identifiers that consist of multiple space separated words will cause problems because `gatk` captures the entire
+string and uses it as the read ID but `bwa` only parses the first word as the read group when it writes aligned reads
+to BAM files. This sequence identifier would break the pipeline
+```
+@MGILLUMINA4_74:7:1101:10000:100149     RG:Z:A470018/1
+```
+Check the sequence identifiers if you encounter a `Aligned record iterator is behind the unmapped reads` error.
+
 ## Citations
 This pipeline is based on `dna-seq-gatk-variant-calling` by 
 [Johannes Köster](https://github.com/snakemake-workflows/dna-seq-gatk-variant-calling).
