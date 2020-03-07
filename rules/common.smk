@@ -49,7 +49,7 @@ def get_dedup_input(wildcards):
     return bams
 
 def get_platform(wildcards):
-    return units.loc[(wildcards.patient, wildcards.sample_type, wildcards.readgroup), 'platform'][0]
+    return units.loc[(wildcards.patient, wildcards.sample_type, wildcards.readgroup), 'platform']
 
 def get_call_pair(wildcards):
     return {'normal' : f"bams/{wildcards.patient}.normal.bam",
