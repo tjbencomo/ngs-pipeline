@@ -8,7 +8,8 @@
 
 rule mutect2:
     input:
-        unpack(get_call_pair),
+        # unpack(get_call_pair),
+        unpack(get_mutect2_input),
         ref=ref_fasta,
         germ_res=germline_resource
     output:
@@ -18,6 +19,7 @@ rule mutect2:
     params:
         tumor="{patient}.tumor",
         normal="{patient}.normal",
+        pon=lambda wildcards, input: "--panel-of-normals " + pon_vcf,
         extra=""
     threads: 4
     conda:
@@ -27,7 +29,8 @@ rule mutect2:
         gatk Mutect2 -R {input.ref} -I {input.normal} -I {input.tumor} \
             -normal {params.normal} -tumor {params.tumor} -O {output.vcf} \
             --germline-resource {input.germ_res} \
-            {params.extra}
+            --disable-read-filter MateOnSameContigOrNoMappedMateReadFilter \
+            {params.pon} {params.extra}
         """
 
 rule pileup_summaries:

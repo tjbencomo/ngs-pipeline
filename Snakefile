@@ -9,3 +9,4 @@ rule targets:
 
 include: "rules/preprocessing.smk"
 include: "rules/calling.smk"
+include: "rules/pon.smk"

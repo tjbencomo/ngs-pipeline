@@ -1,12 +1,37 @@
+# CSV file with single column, patient, with every patient ID
 patients: patients.csv
+# CSV file with info on each sample
 units: units.csv
+
+# Reference genome sources
+# Directory where reference fasta and supporting files are stored
 ref_dir: data/hg38
+# Name of reference FASTA (should be unzipped)
 ref_fasta: genome.chr21.fa
+# Comma separated names of VCF files with known mutations. 
+# Should all be in the reference directory
 known_sites: dbsnp.vcf.gz
+# BED file with exome regions that were targeted for capture. Doesn't have to be in ref_dir
 exome_targets: data/hg38/hg38.chr21.exons.bed
+# AF only VCF with common allele frequencies - use gnomAD file
 germline_resource: data/hg38/gnomad_short.vcf.gz
+# Biallelic variants only VCF with AF data - use EXAC file
 contamination_resource: data/hg38/contam_short.vcf.gz
+
+# Annotation data sources
+# Directory with VEP annotation data
 vep_dir: /home/groups/carilee/refs/vep_data
+# Reference fasta VEP should use for annotation
 vep_fasta: /home/groups/carilee/refs/vep_data/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz 
+# Assembly version name
 assembly_version: GRCh38
+# Value for Center field in the combined MAF
 center_name: lee-lab
+
+# Panel of Normal (PON)
+# Use PON with Mutect2 for variant calling
+use_pon: true
+# Filepath for PON. To create a new PON from all the normal samples, specify as None
+pon_vcf: None
+# GATK, Picard, or BED style interval file with intervals to use for Panel of Normal Creation
+interval_file: data/hg38/hg38.chr21.intervals
