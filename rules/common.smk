@@ -17,6 +17,7 @@ validate(config, schema = "../schemas/config.schema.yaml")
 patients = pd.read_csv(config['patients'])['patient']
 units = pd.read_csv(config['units'], dtype=str).set_index(["patient", "sample", "readgroup"], drop=False)
 validate(units, schema = "../schemas/units.schema.yaml")
+
 ref_dir = config['ref_dir']
 ref_fasta = os.path.join(ref_dir, config['ref_fasta'])
 known_sites = config['known_sites'].replace(' ', '').split(',')
@@ -24,10 +25,24 @@ known_sites = [os.path.join(ref_dir, s) for s in known_sites]
 capture_bed = config['exome_targets']
 germline_resource = config['germline_resource']
 contamination_resource = config['contamination_resource']
+
 vep_dir = config['vep_dir']
 vep_fasta = config['vep_fasta']
 assembly = config['assembly_version']
 center = config['center_name']
+
+use_pon = config['use_pon']
+if use_pon is False:
+    pon_vcf = ''
+else :
+    if config['pon_vcf'] == 'None':
+        build_pon = True 
+        pon_vcf = "pon/pon.vcf.gz"
+    else:
+        build_pon = False
+        pon_vcf = config['pon_vcf']
+genome_intervals = config['interval_file']
+
 sample_types = ['normal', 'tumor']
 file_suffixes= ['amb', 'ann', 'bwt', 'pac', 'sa']
 
@@ -50,6 +65,20 @@ def get_dedup_input(wildcards):
 
 def get_platform(wildcards):
     return units.loc[(wildcards.patient, wildcards.sample_type, wildcards.readgroup), 'platform']
+
+def get_mutect2_input(wildcards):
+    if use_pon:
+        return {
+            'normal' : f"bams/{wildcards.patient}.normal.bam",
+            'tumor' : f"bams/{wildcards.patient}.tumor.bam",
+            'pon' : pon_vcf
+        }
+    else:
+        return {
+                'normal' : f"bams/{wildcards.patient}.normal.bam",
+                'tumor' : f"bams/{wildcards.patient}.tumor.bam"
+        }
+
 
 def get_call_pair(wildcards):
     return {'normal' : f"bams/{wildcards.patient}.normal.bam",

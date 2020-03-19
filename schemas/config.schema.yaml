@@ -41,6 +41,15 @@ properties:
     center_name:
         type: string
         description: name of lab where data was processed. Included in the MAF file generated from vcf2maf
+    use_pon:
+        type: boolean
+        description: use panel of normals for variant calling
+    pon_vcf:
+        type: string
+        description: filepath for PON VCF. To build PON from normal samples, set as None
+    interval_file:
+        type: string
+        description: interval file for regions to include when building PON
 
 required:
     - patients
@@ -55,3 +64,6 @@ required:
     - vep_fasta
     - assembly_version
     - center_name
+    - use_pon
+    - pon_vcf
+    - interval_file
