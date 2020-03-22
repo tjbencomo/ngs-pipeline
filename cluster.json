@@ -94,19 +94,19 @@
     },
     "vep" : 
     {
-        "time" : "00:20:00",
+        "time" : "01:00:00",
         "ncpus" : 1,
-        "mem" : "4G"
+        "mem" : "16G"
     },
     "vcf2maf" : 
     {
-        "time" : "00:20:00",
+        "time" : "01:00:00",
         "ncpus" : 1,
-        "mem" : "4G"
+        "mem" : "16G"
     },
     "concat_mafs" : 
     {
-        "time" : "00:20:00",
+        "time" : "01:00:00",
         "ncpus" : 1,
         "mem" : "8G"
     },

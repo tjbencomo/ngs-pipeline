@@ -28,25 +28,6 @@ Each patient should have at least two rows in `units`, one normal row and one tu
 Multiplexed samples should be differentiated with the `readgroup` column.
 Sequencing data must be paired, so both `fq1` and `fq2` are required.
 
-## Environments
-`snakemake` is required to run `ngs-pipeline`, and other programs (`samtools`, `gatk`, etc)
-are required for various steps in the pipeline. There are many ways to manage the required
-executables.
-
-### Singularity Container + Conda Environments
-`snakemake` can run `ngs-pipeline` in a `singularity` container. Inside this container
-each step is executed with a `conda` environment specified in `envs/`. This approach
-controls the OS and individual packages, ensuring that certain software versions are
-used for analysis. This approach can be enabled with the `--use-conda --use-singularity`
-flags. **This approach is recommended because using .yaml files to specify the environment records the
-software version used for each step, helping others reproduce your results.**
-
-### Other
-Although `conda` and `singularity` are recommended, as long as all the packages are installed
-on your machine, the pipeline will run. You can also only use `conda` environments and
-skip the `singularity` container with `--use-conda`, although this means the OS may be
-different from other users.
-
 ## Usage
 After finishing the setup and enabling the `conda` environment, inside the analysis directory with
 `Snakefile` do a dry run to check for errors
@@ -65,7 +46,9 @@ This will run multiple rules simultaneously, speeding up the analysis.
 
 The pipeline produces two key files: `mafs/variants.maf` and `qc/multiqc_report.html`.
 `variants.maf` includes somatic variants from all samples that passed Mutect2 filtering.
-They have been annotated with VEP and labeled by [VCF2MAF](https://github.com/mskcc/vcf2maf). 
+They have been annotated with VEP and a single effect has been chosen by [VCF2MAF](https://github.com/mskcc/vcf2maf)
+using the Ensembl database. Ensembl uses its canonical isoforms for effect selection. Other isoforms
+can be specified by modifying the `vcf2maf` rule.
 `multiqc_report.html` includes quality metrics like coverage for the fully processed BAM files. 
 Individual VCF files for each sample prior to VCF2MAF mapping are named `{patient}.vcf` in `vcfs/`.
 
@@ -100,6 +83,25 @@ chmod +x parseJobID.sh
 ```
 snakemake --cluster-config cluster.json --cluster 'sbatch $(./parseJobID.sh {dependencies}) -t {cluster.time} --mem {cluster.mem} -p {cluster.partition} -c {cluster.ncpus} - o {cluster.out}' --jobs 100 --notemp --immediate-submit
 ```
+
+## Environments
+`snakemake` is required to run `ngs-pipeline`, and other programs (`samtools`, `gatk`, etc)
+are required for various steps in the pipeline. There are many ways to manage the required
+executables.
+
+### Singularity Container + Conda Environments
+`snakemake` can run `ngs-pipeline` in a `singularity` container. Inside this container
+each step is executed with a `conda` environment specified in `envs/`. This approach
+controls the OS and individual packages, ensuring that certain software versions are
+used for analysis. This approach can be enabled with the `--use-conda --use-singularity`
+flags. **This approach is recommended because using .yaml files to specify the environment records the
+software version used for each step, helping others reproduce your results.**
+
+### Other
+Although `conda` and `singularity` are recommended, as long as all the packages are installed
+on your machine, the pipeline will run. You can also only use `conda` environments and
+skip the `singularity` container with `--use-conda`, although this means the OS may be
+different from other users.
 
 ## Test Dataset
 A small sample of `chr21` reads are supplied from the 
