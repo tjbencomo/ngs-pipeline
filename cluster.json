@@ -114,7 +114,7 @@
     {
         "time" : "20:00:00",
         "ncpus" : 4,
-        "mem" : "20G"
+        "mem" : "32G"
     },
     "gather_variants" :
     {
