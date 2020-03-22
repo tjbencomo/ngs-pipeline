@@ -109,5 +109,23 @@
         "time" : "00:20:00",
         "ncpus" : 1,
         "mem" : "8G"
+    },
+    "mutect2_pon" :
+    {
+        "time" : "20:00:00",
+        "ncpus" : 4,
+        "mem" : "20G"
+    },
+    "gather_variants" :
+    {
+        "time" : "04:00:00",
+        "ncpus" : 1,
+        "mem" : "16G"
+    },
+    "create_pon" :
+    {
+        "time" : "04:00:00",
+        "ncpus" : 1,
+        "mem" : "16G"
     }
 }

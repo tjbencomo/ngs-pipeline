@@ -7,14 +7,17 @@ rule mutect2_pon:
         bam="bams/{patient}.normal.bam",
         ref=ref_fasta
     output:
-        "pon/{patient}.pon.vcf.gz"
+        vcf="pon/{patient}.pon.vcf.gz",
+        idx="pon/{patient}.pon.vcf.gz.tbi",
+        stats="pon/{patient}.pon.vcf.gz.stats"
     conda:
         "../envs/gatk.yml"
+    threads: 4
     shell:
         """
-        gatk Mutect2 -I {input.bam} -R {input.ref} -O {output} \
+        gatk Mutect2 -I {input.bam} -R {input.ref} -O {output.vcf} \
         --disable-read-filter MateOnSameContigOrNoMappedMateReadFilter \
-        -max-mnp-distance 0
+        -max-mnp-distance 0 --native-pair-hmm-threads {threads}
         """
 rule gather_variants:
     input:
@@ -38,11 +41,12 @@ rule create_pon:
         var="pon/pon_db",
         ref=ref_fasta
     output:
-        "pon/pon.vcf.gz"
+        vcf="pon/pon.vcf.gz",
+        idx="pon/pon.vcf.gz.tbi"
     conda:
         "../envs/gatk.yml"
     shell:
         """
-        gatk CreateSomaticPanelOfNormals -R {input.ref} -V gendb://{input.var} -O {output}
+        gatk CreateSomaticPanelOfNormals -R {input.ref} -V gendb://{input.var} -O {output.vcf}
         """
 

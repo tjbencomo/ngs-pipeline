@@ -40,7 +40,8 @@ rule bwa_index:
 rule bwa:
     input:
         bam="bams/{patient}.{sample_type}.{readgroup}.unaligned.bam",
-        ref=ref_fasta
+        ref=ref_fasta,
+        [f"{ref_fasta}.{suffix}" for suffix in file_suffixes]
     output:
         temp("bams/{patient}.{sample_type}.{readgroup}.aligned.bam")
     threads: 8
@@ -178,9 +179,23 @@ rule multiqc:
         expand("qc/{patient}.{sample_type}.flagstat", patient=patients, sample_type=sample_types)
     output:
         "qc/multiqc_report.html"
+    log:
+        "logs/multiqc.log"
     conda:
         "../envs/qc.yml"
-    shell:
-        """
-        multiqc {input} -o qc/
-        """
+    wrapper:
+        "0.50.4/bio/multiqc"
+
+# rule multiqc:
+#     input:
+#         expand("qc/fastqc/{patient}_{sample_type}_fastqc.zip", patient=patients, sample_type=sample_types),
+#         expand("qc/{patient}_{sample_type}.mosdepth.region.dist.txt", patient=patients, sample_type=sample_types),
+#         expand("qc/{patient}.{sample_type}.flagstat", patient=patients, sample_type=sample_types)
+#     output:
+#         "qc/multiqc_report.html"
+#     conda:
+#         "../envs/qc.yml"
+#     shell:
+#         """
+#         multiqc {input} -o qc/
+#         """

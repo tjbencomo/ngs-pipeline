@@ -25,7 +25,7 @@ def concat_mafs(files):
 def main():
     files = snakemake.input
     maf = concat_mafs(files)
-    maf.to_csv(snakemake.output[0], index=False)
+    maf.to_csv(snakemake.output[0], sep="\t", index=False, header=True)
 
 if __name__ == '__main__':
     main()

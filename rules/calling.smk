@@ -30,6 +30,7 @@ rule mutect2:
             -normal {params.normal} -tumor {params.tumor} -O {output.vcf} \
             --germline-resource {input.germ_res} \
             --disable-read-filter MateOnSameContigOrNoMappedMateReadFilter \
+            --native-pair-hmm-threads {threads} \
             {params.pon} {params.extra}
         """
 
@@ -100,10 +101,11 @@ rule vep:
 rule vcf2maf:
     input:
         vcf="vcfs/{patient}.vcf",
-        fasta=vep_fasta,
+        fasta=ref_fasta,
         vep_dir=vep_dir
     output:
-        "mafs/{patient}.maf"
+        vep_vcf="vcfs/{patient}.vep.vcf",
+        maf="mafs/{patient}.maf"
     conda:
         "../envs/annotation.yml"
     params:
@@ -113,7 +115,7 @@ rule vcf2maf:
         """
         vep_fp=`which vep`
         vep_path=$(dirname "$vep_fp")
-        vcf2maf.pl --input-vcf {input.vcf} --output-maf {output} \
+        vcf2maf.pl --input-vcf {input.vcf} --output-maf {output.maf} \
             --tumor-id {wildcards.patient}.tumor \
             --normal-id {wildcards.patient}.normal \
             --ref-fasta {input.fasta} --vep-data {input.vep_dir} \

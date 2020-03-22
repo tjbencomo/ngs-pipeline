@@ -33,7 +33,7 @@ center = config['center_name']
 
 use_pon = config['use_pon']
 if use_pon is False:
-    pon_vcf = ''
+    pon_vcf = 'null'
 else :
     if config['pon_vcf'] == 'None':
         build_pon = True 
@@ -76,7 +76,7 @@ def get_mutect2_input(wildcards):
     else:
         return {
                 'normal' : f"bams/{wildcards.patient}.normal.bam",
-                'tumor' : f"bams/{wildcards.patient}.tumor.bam"
+                'tumor' : f"bams/{wildcards.patient}.tumor.bam",
         }
 
 
