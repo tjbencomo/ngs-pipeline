@@ -39,9 +39,9 @@ rule bwa_index:
 
 rule bwa:
     input:
+        bwt_files=[f"{ref_fasta}.{suffix}" for suffix in file_suffixes],
         bam="bams/{patient}.{sample_type}.{readgroup}.unaligned.bam",
-        ref=ref_fasta,
-        [f"{ref_fasta}.{suffix}" for suffix in file_suffixes]
+        ref=ref_fasta
     output:
         temp("bams/{patient}.{sample_type}.{readgroup}.aligned.bam")
     threads: 8
