@@ -66,8 +66,8 @@ rule filter_calls:
         ref=ref_fasta,
         contamination="qc/{patient}_contamination.table"
     output:
-        vcf=temp("vcfs/{patient}.filtered.vcf.gz"),
-        idx=temp("vcfs/{patient}.filtered.vcf.gz.tbi"),
+        vcf=temp("vcfs/{patient}.filtered.vcf"),
+        idx=temp("vcfs/{patient}.filtered.vcf.idx"),
         intermediate=temp("vcfs/{patient}.unselected.vcf"),
         inter_idx=temp("vcfs/{patient}.unselected.vcf.filteringStats.tsv"),
         inter_stats=temp("vcfs/{patient}.unselected.vcf.idx")
@@ -81,30 +81,31 @@ rule filter_calls:
             --exclude-filtered -OVI
         """
 
-rule vep:
-    input:
-        vcf="vcfs/{patient}.filtered.vcf.gz",
-        fasta=vep_fasta
-    output:
-        vcf="vcfs/{patient}.vcf",
-        stats="vcfs/{patient}.vcf_summary.html"
-    params:
-        vep_dir = vep_dir,
-        assembly=assembly
-    conda:
-        "../envs/annotation.yml"
-    shell:
-        """
-        vep --cache --offline --hgvs --vcf --assembly {params.assembly} --dir {params.vep_dir}  \
-            -i {input.vcf} -o {output.vcf} --fasta {input.fasta}
-        """
+# rule vep:
+#     input:
+#         vcf="vcfs/{patient}.filtered.vcf.gz",
+#         fasta=vep_fasta
+#     output:
+#         vcf="vcfs/{patient}.vcf",
+#         stats="vcfs/{patient}.vcf_summary.html"
+#     params:
+#         vep_dir = vep_dir,
+#         assembly=assembly
+#     conda:
+#         "../envs/annotation.yml"
+#     shell:
+#         """
+#         vep --cache --offline --hgvs --vcf --assembly {params.assembly} --dir {params.vep_dir}  \
+#             -i {input.vcf} -o {output.vcf} --fasta {input.fasta}
+#         """
+
 rule vcf2maf:
     input:
-        vcf="vcfs/{patient}.vcf",
+        vcf="vcfs/{patient}.filtered.vcf",
         fasta=ref_fasta,
         vep_dir=vep_dir
     output:
-        vep_vcf="vcfs/{patient}.vep.vcf",
+        vep_vcf="vcfs/{patient}.filtered.vep.vcf",
         maf="mafs/{patient}.maf"
     conda:
         "../envs/annotation.yml"
