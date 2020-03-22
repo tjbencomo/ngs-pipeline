@@ -50,7 +50,7 @@ They have been annotated with VEP and a single effect has been chosen by [VCF2MA
 using the Ensembl database. Ensembl uses its canonical isoforms for effect selection. Other isoforms
 can be specified by modifying the `vcf2maf` rule.
 `multiqc_report.html` includes quality metrics like coverage for the fully processed BAM files. 
-Individual VCF files for each sample prior to VCF2MAF mapping are named `{patient}.vcf` in `vcfs/`.
+Individual VCF files for each sample prior to VCF2MAF selection are named `{patient}.filtered.vep.vcf` in `vcfs/`.
 
 
 ### Cluster Execution
