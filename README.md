@@ -13,7 +13,8 @@ You'll also need the `cache` files for
 [Variant Annotation Predictor (VEP)](https://github.com/Ensembl/ensembl-vep).
 Follow the tutorial 
 [here](https://uswest.ensembl.org/info/docs/tools/vep/script/vep_cache.html#cache) 
-to download the data files.
+to download the data files. `ngs-pipeline` uses VEP 99 so install the cache for version 99.
+The VEP version can be changed by modifying `envs/annotation.yml`.
 Don't forget to index the files before running the pipeline.
 ## Setup
 
