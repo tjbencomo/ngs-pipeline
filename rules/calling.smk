@@ -21,7 +21,6 @@ rule mutect2:
         normal="{patient}.normal",
         pon=lambda wildcards, input: "--panel-of-normals " + pon_vcf,
         extra=""
-    threads: 4
     conda:
         "../envs/gatk.yml"
     shell:
@@ -30,7 +29,6 @@ rule mutect2:
             -normal {params.normal} -tumor {params.tumor} -O {output.vcf} \
             --germline-resource {input.germ_res} \
             --disable-read-filter MateOnSameContigOrNoMappedMateReadFilter \
-            --native-pair-hmm-threads {threads} \
             {params.pon} {params.extra}
         """
 

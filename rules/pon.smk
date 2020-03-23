@@ -12,12 +12,11 @@ rule mutect2_pon:
         stats="pon/{patient}.pon.vcf.gz.stats"
     conda:
         "../envs/gatk.yml"
-    threads: 4
     shell:
         """
         gatk Mutect2 -I {input.bam} -R {input.ref} -O {output.vcf} \
         --disable-read-filter MateOnSameContigOrNoMappedMateReadFilter \
-        -max-mnp-distance 0 --native-pair-hmm-threads {threads}
+        -max-mnp-distance 0 
         """
 rule gather_variants:
     input:

@@ -17,6 +17,7 @@ validate(config, schema = "../schemas/config.schema.yaml")
 patients = pd.read_csv(config['patients'])['patient']
 units = pd.read_csv(config['units'], dtype=str).set_index(["patient", "sample", "readgroup"], drop=False)
 validate(units, schema = "../schemas/units.schema.yaml")
+units = units.sort_index()
 
 ref_dir = config['ref_dir']
 ref_fasta = os.path.join(ref_dir, config['ref_fasta'])

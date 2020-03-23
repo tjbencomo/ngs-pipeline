@@ -71,7 +71,6 @@
     "mutect2" :
     {
         "time" : "20:00:00",
-        "ncpus" : 4,
         "mem" : "32G"
     },
     "pileup_summaries" :
@@ -92,12 +91,6 @@
         "ncpus" : 1,
         "mem" : "8G"
     },
-    "vep" : 
-    {
-        "time" : "01:00:00",
-        "ncpus" : 1,
-        "mem" : "16G"
-    },
     "vcf2maf" : 
     {
         "time" : "01:00:00",
@@ -113,7 +106,6 @@
     "mutect2_pon" :
     {
         "time" : "20:00:00",
-        "ncpus" : 4,
         "mem" : "32G"
     },
     "gather_variants" :
