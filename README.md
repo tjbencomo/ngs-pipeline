@@ -47,7 +47,7 @@ This will run multiple rules simultaneously, speeding up the analysis.
 
 The pipeline produces two key files: `mafs/variants.maf` and `qc/multiqc_report.html`.
 `variants.maf` includes somatic variants from all samples that passed Mutect2 filtering.
-They have been annotated with VEP and a single effect has been chosen by [VCF2MAF](https://github.com/mskcc/vcf2maf)
+They have been annotated with VEP and a single effect has been chosen by [vcf2maf](https://github.com/mskcc/vcf2maf)
 using the Ensembl database. Ensembl uses its canonical isoforms for effect selection. 
 Other isoforms can be specified with the `alternate_isoforms` field in `config.yaml`.
 See the [cBioPortal override isoforms](https://github.com/mskcc/vcf2maf/blob/master/data/isoform_overrides_uniprot)
