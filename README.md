@@ -70,8 +70,6 @@ Follow these instructions to enable SLURM usage
 snakemake --cluster-config cluster.json -j 100 --cluster 'sbatch -p {cluster.partition} -t {cluster.time} --mem {cluster.mem}  -c {cluster.ncpus} -o {cluster.out}'
 ```
 This command can be run in an `sbatch` job.
-In the `sbatch` script, don't forget to `conda activate`
-before running snakemake.
 
 If for some reason you can't leave the master `snakemake` process running, `snakemake`
 offers the ability to launch all jobs using `--immediate-submit`. This
@@ -96,7 +94,7 @@ executables.
 ### Singularity Container + Conda Environments
 `snakemake` can run `ngs-pipeline` in a `singularity` container. Inside this container
 each step is executed with a `conda` environment specified in `envs/`. This approach
-controls the OS and individual packages, ensuring that certain software versions are
+controls the OS and individual libraries, ensuring that certain software versions are
 used for analysis. This approach can be enabled with the `--use-conda --use-singularity`
 flags. **This approach is recommended because using .yaml files to specify the environment records the
 software version used for each step, helping others reproduce your results.**
