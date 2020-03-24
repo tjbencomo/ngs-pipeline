@@ -53,7 +53,8 @@ Other isoforms can be specified with the `alternate_isoforms` field in `config.y
 See the [cBioPortal override isoforms](https://github.com/mskcc/vcf2maf/blob/master/data/isoform_overrides_uniprot)
 for file formatting.
 `multiqc_report.html` includes quality metrics like coverage for the fully processed BAM files. 
-Individual VCF files for each sample prior to VCF2MAF selection are named `{patient}.filtered.vep.vcf` in `vcfs/`.
+Individual VCF files for each sample prior VEP annotation are found as `vcfs/{patient}.vcf`.
+VEP annotated VCFs are found as `vcfs/{patient}.vep.vcf`.
 
 
 ### Cluster Execution
