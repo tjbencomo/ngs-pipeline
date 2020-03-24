@@ -64,8 +64,8 @@ rule filter_calls:
         ref=ref_fasta,
         contamination="qc/{patient}_contamination.table"
     output:
-        vcf=temp("vcfs/{patient}.filtered.vcf"),
-        idx=temp("vcfs/{patient}.filtered.vcf.idx"),
+        vcf="vcfs/{patient}.vcf",
+        idx="vcfs/{patient}.vcf.idx",
         intermediate=temp("vcfs/{patient}.unselected.vcf"),
         inter_idx=temp("vcfs/{patient}.unselected.vcf.filteringStats.tsv"),
         inter_stats=temp("vcfs/{patient}.unselected.vcf.idx")
@@ -99,11 +99,12 @@ rule filter_calls:
 
 rule vcf2maf:
     input:
-        vcf="vcfs/{patient}.filtered.vcf",
+        vcf="vcfs/{patient}.vcf",
         fasta=ref_fasta,
-        vep_dir=vep_dir
+        vep_dir=vep_dir,
+        alt_isoforms=alternate_isoforms
     output:
-        vep_vcf="vcfs/{patient}.filtered.vep.vcf",
+        vep_vcf="vcfs/{patient}.vep.vcf",
         maf="mafs/{patient}.maf"
     conda:
         "../envs/annotation.yml"
@@ -120,6 +121,7 @@ rule vcf2maf:
             --ref-fasta {input.fasta} --vep-data {input.vep_dir} \
             --ncbi-build {params.assembly} \
             --filter-vcf 0 --vep-path $vep_path \
+            --custom-enst {input.alt_isoforms} \
             --maf-center {params.center}
         """
 rule concat_mafs:

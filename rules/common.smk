@@ -31,6 +31,9 @@ vep_dir = config['vep_dir']
 vep_fasta = config['vep_fasta']
 assembly = config['assembly_version']
 center = config['center_name']
+alternate_isoforms = config['alternate_isoforms']
+if alternate_isoforms == '':
+    alternate_isoforms = ''
 
 use_pon = config['use_pon']
 if use_pon is False:

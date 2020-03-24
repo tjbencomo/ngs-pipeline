@@ -1,7 +1,7 @@
 # CSV file with single column, patient, with every patient ID
-patients: patients.csv
+patients: patients-small.csv
 # CSV file with info on each sample
-units: units.csv
+units: units-small.csv
 
 # Reference genome sources
 # Directory where reference fasta and supporting files are stored
@@ -27,10 +27,12 @@ vep_fasta: /home/groups/carilee/refs/vep_data/Homo_sapiens.GRCh38.dna.primary_as
 assembly_version: GRCh38
 # Value for Center field in the combined MAF
 center_name: lee-lab
+# Alternate Isoforms For vcf2maf Selection. Set as None to use Ensembl defaults
+alternate_isoforms: None
 
 # Panel of Normal (PON)
 # Use PON with Mutect2 for variant calling
-use_pon: true
+use_pon: false
 # Filepath for PON. To create a new PON from all the normal samples, specify as None
 pon_vcf: None
 # GATK, Picard, or BED style interval file with intervals to use for Panel of Normal Creation
