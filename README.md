@@ -58,7 +58,8 @@ See the [cBioPortal override isoforms](https://github.com/mskcc/vcf2maf/blob/mas
 for file formatting.
 `multiqc_report.html` includes quality metrics like coverage for the fully processed BAM files. 
 Individual VCF files for each sample prior VEP annotation are found as `vcfs/{patient}.vcf`.
-VEP annotated VCFs are found as `vcfs/{patient}.vep.vcf`.
+VEP annotated VCFs are found as `vcfs/{patient}.vep.vcf`. `qc/depths.svg` shows the sequencing depth distribution
+for normal and tumor samples.
 
 
 ### Cluster Execution
