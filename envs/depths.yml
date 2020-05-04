@@ -1,0 +1,11 @@
+name: depths
+channels:
+    - defaults
+    - conda-forge
+dependencies:
+    - r-readr
+    - r-dplyr
+    - r-ggplot2
+    - r-svglite
+    - libiconv
+    - mscorefonts

@@ -139,7 +139,8 @@ rule exome_cov:
         bam="bams/{patient}.{sample_type}.bam",
         exons=capture_bed
     output:
-        "qc/{patient}_{sample_type}.mosdepth.region.dist.txt"
+        "qc/{patient}_{sample_type}.mosdepth.region.dist.txt",
+        "qc/{patient}_{sample_type}.regions.bed.gz"
     threads: 4
     conda:
         "../envs/qc.yml"
@@ -186,16 +187,22 @@ rule multiqc:
     wrapper:
         "0.50.4/bio/multiqc"
 
-# rule multiqc:
-#     input:
-#         expand("qc/fastqc/{patient}_{sample_type}_fastqc.zip", patient=patients, sample_type=sample_types),
-#         expand("qc/{patient}_{sample_type}.mosdepth.region.dist.txt", patient=patients, sample_type=sample_types),
-#         expand("qc/{patient}.{sample_type}.flagstat", patient=patients, sample_type=sample_types)
-#     output:
-#         "qc/multiqc_report.html"
-#     conda:
-#         "../envs/qc.yml"
-#     shell:
-#         """
-#         multiqc {input} -o qc/
-#         """
+rule seq_depths:
+    input:
+        expand("qc/{patient}_{sample_type}.regions.bed.gz", patient=patients, sample_type=sample_types)
+    output:
+        "qc/depths.csv"
+    conda:
+        "../envs/pandas.yml"
+    script:
+        "../scripts/count_depth.py"
+
+rule plot_depths:
+    input:
+        "qc/depths.csv"
+    output:
+        "qc/depths.svg"
+    conda:
+        "../envs/depths.yml"
+    script:
+        "../scripts/plot_depth.R"

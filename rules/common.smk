@@ -32,8 +32,11 @@ vep_fasta = config['vep_fasta']
 assembly = config['assembly_version']
 center = config['center_name']
 alternate_isoforms = config['alternate_isoforms']
-if alternate_isoforms == '':
+if config['alternate_isoforms'] == 'None':
     alternate_isoforms = ''
+    isoforms_param = ''
+else:
+    isoforms_param = '--custom-enst ' + alternate_isoforms
 
 use_pon = config['use_pon']
 if use_pon is False:
@@ -87,3 +90,19 @@ def get_mutect2_input(wildcards):
 def get_call_pair(wildcards):
     return {'normal' : f"bams/{wildcards.patient}.normal.bam",
             'tumor' : f"bams/{wildcards.patient}.tumor.bam"}
+
+def get_vcf2maf_input(wildcards):
+    if alternate_isoforms == '':
+        return {
+            'vcf' : f"vcfs/{wildcards.patient}.vcf",
+            'fasta' : ref_fasta,
+            'vep_dir' : vep_dir
+        }
+    else:
+        return {
+            'vcf' : f"vcfs/{wildcards.patient}.vcf",
+            'fasta' : ref_fasta,
+            'vep_dir' : vep_dir,
+            'alt_isoforms' : alternate_isoforms
+        }
+
