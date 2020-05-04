@@ -135,15 +135,4 @@ Check the sequence identifiers if you encounter a `Aligned record iterator is be
 ## Citations
 This pipeline is based on `dna-seq-gatk-variant-calling` by 
 [Johannes Köster](https://github.com/snakemake-workflows/dna-seq-gatk-variant-calling).
-If you use this pipeline, make sure to cite references for all of the tools used in the workflow:
-```
-snakemake
-gatk
-samtools
-mosdepth
-fastqc
-multiqc
-vep
-vcf2maf
-```
-Citations to be added...
+If you use `ngs-pipeline`, please use `citations.md` to cite the necessary software tools. 
