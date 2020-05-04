@@ -139,7 +139,8 @@ rule exome_cov:
         bam="bams/{patient}.{sample_type}.bam",
         exons=capture_bed
     output:
-        "qc/{patient}_{sample_type}.mosdepth.region.dist.txt"
+        "qc/{patient}_{sample_type}.mosdepth.region.dist.txt",
+        "qc/{patient}_{sample_type}.regions.bed.gz"
     threads: 4
     conda:
         "../envs/qc.yml"

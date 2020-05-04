@@ -99,10 +99,11 @@ rule filter_calls:
 
 rule vcf2maf:
     input:
-        vcf="vcfs/{patient}.vcf",
-        fasta=ref_fasta,
-        vep_dir=vep_dir,
-        alt_isoforms=alternate_isoforms
+        unpack(get_vcf2maf_input)
+        #vcf="vcfs/{patient}.vcf",
+        #fasta=ref_fasta,
+        #vep_dir=vep_dir,
+        #alt_isoforms=alternate_isoforms
     output:
         vep_vcf="vcfs/{patient}.vep.vcf",
         maf="mafs/{patient}.maf"
@@ -110,7 +111,8 @@ rule vcf2maf:
         "../envs/annotation.yml"
     params:
         assembly=assembly,
-        center=center
+        center=center,
+        isoforms=isoforms_param
     shell:
         """
         vep_fp=`which vep`
@@ -121,8 +123,8 @@ rule vcf2maf:
             --ref-fasta {input.fasta} --vep-data {input.vep_dir} \
             --ncbi-build {params.assembly} \
             --filter-vcf 0 --vep-path $vep_path \
-            --custom-enst {input.alt_isoforms} \
-            --maf-center {params.center}
+            --maf-center {params.center} \
+            {params.isoforms}
         """
 rule concat_mafs:
     input:
