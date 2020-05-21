@@ -5,8 +5,8 @@ NGS pipeline for calling somatic variants from paired end (PE) whole exome seque
 * Tomas Bencomo ([https://tjbencomo.github.io](https://tjbencomo.github.io))
 
 ## Getting Help
-If you encounter problems  using the pipeline or would like to request a new feature, 
-file an issue in the [Issues](https://github.com/tjbencomo/ngs-pipeline/issues) tab.
+If you encounter problems using the pipeline, find a bug, or would like to request a new feature, 
+please file an [issue](https://github.com/tjbencomo/ngs-pipeline/issues).
 
 ## Prerequisites
 Before you start setting up the pipeline, make sure you have your reference genome assembled.
