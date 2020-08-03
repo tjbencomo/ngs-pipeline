@@ -5,7 +5,8 @@ rule targets:
     input:
         expand("{ref_fasta}.{suffix}", ref_fasta=ref_fasta, suffix=file_suffixes),
         "mafs/variants.maf",
-        "qc/multiqc_report.html"
+        "qc/multiqc_report.html",
+        "qc/depths.svg"
 
 include: "rules/preprocessing.smk"
 include: "rules/calling.smk"

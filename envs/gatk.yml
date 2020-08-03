@@ -6,4 +6,4 @@ dependencies:
     - python=3.7
     - samtools=1.9
     - bwa=0.7.17
-    - gatk4=4.1.4.1
+    - gatk4=4.1.8.1-0

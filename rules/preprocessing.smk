@@ -134,18 +134,24 @@ rule bqsr:
             --create-output-bam-md5 --use-original-qualities
         """
 
-rule exome_cov:
+rule coverage:
     input:
-        bam="bams/{patient}.{sample_type}.bam",
-        exons=capture_bed
+        unpack(get_coverage_input)
+        # bam="bams/{patient}.{sample_type}.bam",
+        # exons=capture_bed
     output:
-        "qc/{patient}_{sample_type}.mosdepth.region.dist.txt"
+        "qc/{patient}_{sample_type}.mosdepth.region.dist.txt",
+        "qc/{patient}_{sample_type}.regions.bed.gz",
+        "qc/{patient}_{sample_type}.mosdepth.global.dist.txt",
+        "qc/{patient}_{sample_type}.mosdepth.summary.txt"
     threads: 4
+    params:
+        by=lambda wildcards, input: '500' if isWGS(wildcards) else input.capture
     conda:
         "../envs/qc.yml"
     shell:
         """
-        mosdepth --by {input.exons} -t {threads} qc/{wildcards.patient}_{wildcards.sample_type} \
+        mosdepth --by {params.by} -t {threads} qc/{wildcards.patient}_{wildcards.sample_type} \
             {input.bam}
         """
 
@@ -186,16 +192,22 @@ rule multiqc:
     wrapper:
         "0.50.4/bio/multiqc"
 
-# rule multiqc:
-#     input:
-#         expand("qc/fastqc/{patient}_{sample_type}_fastqc.zip", patient=patients, sample_type=sample_types),
-#         expand("qc/{patient}_{sample_type}.mosdepth.region.dist.txt", patient=patients, sample_type=sample_types),
-#         expand("qc/{patient}.{sample_type}.flagstat", patient=patients, sample_type=sample_types)
-#     output:
-#         "qc/multiqc_report.html"
-#     conda:
-#         "../envs/qc.yml"
-#     shell:
-#         """
-#         multiqc {input} -o qc/
-#         """
+rule seq_depths:
+    input:
+        expand("qc/{patient}_{sample_type}.regions.bed.gz", patient=patients, sample_type=sample_types)
+    output:
+        "qc/depths.csv"
+    conda:
+        "../envs/pandas.yml"
+    script:
+        "../scripts/count_depth.py"
+
+rule plot_depths:
+    input:
+        "qc/depths.csv"
+    output:
+        "qc/depths.svg"
+    conda:
+        "../envs/depths.yml"
+    script:
+        "../scripts/plot_depth.R"

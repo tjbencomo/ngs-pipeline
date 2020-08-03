@@ -5,8 +5,8 @@ NGS pipeline for calling somatic variants from paired end (PE) whole exome seque
 * Tomas Bencomo ([https://tjbencomo.github.io](https://tjbencomo.github.io))
 
 ## Getting Help
-If you encounter problems  using the pipeline or would like to request a new feature, 
-file an issue in the [Issues](https://github.com/tjbencomo/ngs-pipeline/issues) tab.
+If you encounter problems using the pipeline, find a bug, or would like to request a new feature, 
+please file an [issue](https://github.com/tjbencomo/ngs-pipeline/issues).
 
 ## Prerequisites
 Before you start setting up the pipeline, make sure you have your reference genome assembled.
@@ -58,7 +58,8 @@ See the [cBioPortal override isoforms](https://github.com/mskcc/vcf2maf/blob/mas
 for file formatting.
 `multiqc_report.html` includes quality metrics like coverage for the fully processed BAM files. 
 Individual VCF files for each sample prior VEP annotation are found as `vcfs/{patient}.vcf`.
-VEP annotated VCFs are found as `vcfs/{patient}.vep.vcf`.
+VEP annotated VCFs are found as `vcfs/{patient}.vep.vcf`. `qc/depths.svg` shows the sequencing depth distribution
+for normal and tumor samples.
 
 
 ### Cluster Execution

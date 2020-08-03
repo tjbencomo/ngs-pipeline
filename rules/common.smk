@@ -23,7 +23,7 @@ ref_dir = config['ref_dir']
 ref_fasta = os.path.join(ref_dir, config['ref_fasta'])
 known_sites = config['known_sites'].replace(' ', '').split(',')
 known_sites = [os.path.join(ref_dir, s) for s in known_sites]
-capture_bed = config['exome_targets']
+capture_bed = config['capture_targets']
 germline_resource = config['germline_resource']
 contamination_resource = config['contamination_resource']
 
@@ -32,8 +32,13 @@ vep_fasta = config['vep_fasta']
 assembly = config['assembly_version']
 center = config['center_name']
 alternate_isoforms = config['alternate_isoforms']
-if alternate_isoforms == '':
+if config['alternate_isoforms'] == 'None':
     alternate_isoforms = ''
+    isoforms_param = ''
+else:
+    isoforms_param = '--custom-enst ' + alternate_isoforms
+
+tumor_only = config['tumor_only']
 
 use_pon = config['use_pon']
 if use_pon is False:
@@ -47,7 +52,13 @@ else :
         pon_vcf = config['pon_vcf']
 genome_intervals = config['interval_file']
 
-sample_types = ['normal', 'tumor']
+if tumor_only:
+    sample_types = ['tumor']
+else:
+    sample_types = ['normal', 'tumor']
+
+wgs = True
+
 file_suffixes= ['amb', 'ann', 'bwt', 'pac', 'sa']
 
 wildcard_constraints:
@@ -71,19 +82,61 @@ def get_platform(wildcards):
     return units.loc[(wildcards.patient, wildcards.sample_type, wildcards.readgroup), 'platform']
 
 def get_mutect2_input(wildcards):
+    files = {}
+    files['tumor'] = f"bams/{wildcards.patient}.tumor.bam"
     if use_pon:
-        return {
-            'normal' : f"bams/{wildcards.patient}.normal.bam",
-            'tumor' : f"bams/{wildcards.patient}.tumor.bam",
-            'pon' : pon_vcf
-        }
-    else:
-        return {
-                'normal' : f"bams/{wildcards.patient}.normal.bam",
-                'tumor' : f"bams/{wildcards.patient}.tumor.bam",
-        }
+        files['pon'] = pon_vcf
+    if not tumor_only:
+        files['normal'] = f"bams/{wildcards.patient}.normal.bam"
+    return files
+    # if use_pon:
+    #     return {
+    #         'normal' : f"bams/{wildcards.patient}.normal.bam",
+    #         'tumor' : f"bams/{wildcards.patient}.tumor.bam",
+    #         'pon' : pon_vcf
+    #     }
+    # else:
+    #     return {
+    #             'normal' : f"bams/{wildcards.patient}.normal.bam",
+    #             'tumor' : f"bams/{wildcards.patient}.tumor.bam",
+    #     }
 
 
 def get_call_pair(wildcards):
     return {'normal' : f"bams/{wildcards.patient}.normal.bam",
             'tumor' : f"bams/{wildcards.patient}.tumor.bam"}
+
+def get_vcf2maf_input(wildcards):
+    if alternate_isoforms == '':
+        return {
+            'vcf' : f"vcfs/{wildcards.patient}.vcf",
+            'fasta' : ref_fasta,
+            'vep_dir' : vep_dir
+        }
+    else:
+        return {
+            'vcf' : f"vcfs/{wildcards.patient}.vcf",
+            'fasta' : ref_fasta,
+            'vep_dir' : vep_dir,
+            'alt_isoforms' : alternate_isoforms
+        }
+
+def get_contamination_input(wildcards):
+    out = {}
+    out['tumor'] = f'qc/{wildcards.patient}_tumor_pileupsummaries.table'
+    if not tumor_only:
+        out['normal'] = f'qc/{wildcards.patient}_normal_pileupsummaries.table'
+    return out
+
+def get_coverage_input(wildcards):
+    seqtype = units.loc[(wildcards.patient, wildcards.sample_type), 'seqtype'][0]
+    print(seqtype)
+    files = {}
+    files['bam'] = f"bams/{wildcards.patient}.{wildcards.sample_type}.bam"
+    if seqtype == "WES":
+        files['capture'] = capture_bed
+    return files
+
+def isWGS(wildcards):
+    seqtype = units.loc[(wildcards.patient, wildcards.sample_type), 'seqtype'][0]
+    return seqtype == "WGS"

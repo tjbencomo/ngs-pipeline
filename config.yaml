@@ -1,7 +1,7 @@
 # CSV file with single column, patient, with every patient ID
-patients: patients-small.csv
+patients: patients.csv
 # CSV file with info on each sample
-units: units-small.csv
+units: units.csv
 
 # Reference genome sources
 # Directory where reference fasta and supporting files are stored
