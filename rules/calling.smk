@@ -8,7 +8,6 @@
 
 rule mutect2:
     input:
-        # unpack(get_call_pair),
         unpack(get_mutect2_input),
         ref=ref_fasta,
         germ_res=germline_resource
@@ -18,26 +17,35 @@ rule mutect2:
         stats="vcfs/{patient}.unfiltered.vcf.stats"
     params:
         tumor="{patient}.tumor",
-        normal="{patient}.normal",
-        pon=lambda wildcards, input: "--panel-of-normals " + pon_vcf,
+        normalname= ' ' if tumor_only else '-normal ' + "{patient}.normal",
+        normal_input=lambda wildcards, input: ' ' if tumor_only else "-I " + input.normal,
+        pon="--panel-of-normals " + pon_vcf,
         extra=""
     conda:
         "../envs/gatk.yml"
     shell:
         """
-        gatk Mutect2 -R {input.ref} -I {input.normal} -I {input.tumor} \
-            -normal {params.normal} -tumor {params.tumor} -O {output.vcf} \
+        gatk Mutect2 -R {input.ref} -I {input.tumor} \
+            -tumor {params.tumor} -O {output.vcf} \
             --germline-resource {input.germ_res} \
             --disable-read-filter MateOnSameContigOrNoMappedMateReadFilter \
+            {params.normal_input} {params.normalname} \
             {params.pon} {params.extra}
         """
+        # """
+        # gatk Mutect2 -R {input.ref} -I {input.normal} -I {input.tumor} \
+        #     -normal {params.normal} -tumor {params.tumor} -O {output.vcf} \
+        #     --germline-resource {input.germ_res} \
+        #     --disable-read-filter MateOnSameContigOrNoMappedMateReadFilter \
+        #     {params.pon} {params.extra}
+        # """
 
 rule pileup_summaries:
     input:
-        bam="bams/{patient}.tumor.bam",
+        bam="bams/{patient}.{sample_type}.bam",
         germ_res=contamination_resource
     output:
-        "qc/{patient}_pileupsummaries.table"
+        "qc/{patient}_{sample_type}_pileupsummaries.table"
     conda:
         "../envs/gatk.yml"
     shell:
@@ -48,21 +56,26 @@ rule pileup_summaries:
 
 rule calculate_contamination:
     input:
-        "qc/{patient}_pileupsummaries.table"
+        unpack(get_contamination_input)
     output:
         "qc/{patient}_contamination.table"
+    params:
+        matched=lambda wildcards, input:'' if tumor_only else '-matched ' + input.normal
     conda:
         "../envs/gatk.yml"
     shell:
         """
-        gatk CalculateContamination -I {input} -O {output}
+        gatk CalculateContamination -I {input}  \
+        {params.matched} \
+        -O {output}
         """
 
 rule filter_calls:
     input:
         vcf="vcfs/{patient}.unfiltered.vcf",
         ref=ref_fasta,
-        contamination="qc/{patient}_contamination.table"
+        contamination="qc/{patient}_contamination.table",
+        stats="vcfs/{patient}.unfiltered.vcf.stats"
     output:
         vcf="vcfs/{patient}.vcf",
         idx="vcfs/{patient}.vcf.idx",
@@ -74,7 +87,9 @@ rule filter_calls:
     shell:
         """
         gatk FilterMutectCalls -V {input.vcf} -R {input.ref} \
-            --contamination-table {input.contamination} -O {output.intermediate}
+            --contamination-table {input.contamination} \
+            --stats {input.stats} \
+            -O {output.intermediate}
         gatk SelectVariants -V {output.intermediate} -R {input.ref} -O {output.vcf} \
             --exclude-filtered -OVI
         """
@@ -112,20 +127,33 @@ rule vcf2maf:
     params:
         assembly=assembly,
         center=center,
-        isoforms=isoforms_param
+        isoforms=isoforms_param,
+        normalid=lambda wildcards, input: '' if tumor_only else "--normal-id " + wildcards.patient + ".normal"
     shell:
         """
         vep_fp=`which vep`
         vep_path=$(dirname "$vep_fp")
         vcf2maf.pl --input-vcf {input.vcf} --output-maf {output.maf} \
             --tumor-id {wildcards.patient}.tumor \
-            --normal-id {wildcards.patient}.normal \
             --ref-fasta {input.fasta} --vep-data {input.vep_dir} \
             --ncbi-build {params.assembly} \
             --filter-vcf 0 --vep-path $vep_path \
             --maf-center {params.center} \
+            {params.normalid} \
             {params.isoforms}
         """
+        # """
+        # vep_fp=`which vep`
+        # vep_path=$(dirname "$vep_fp")
+        # vcf2maf.pl --input-vcf {input.vcf} --output-maf {output.maf} \
+        #     --tumor-id {wildcards.patient}.tumor \
+        #     --normal-id {wildcards.patient}.normal \
+        #     --ref-fasta {input.fasta} --vep-data {input.vep_dir} \
+        #     --ncbi-build {params.assembly} \
+        #     --filter-vcf 0 --vep-path $vep_path \
+        #     --maf-center {params.center} \
+        #     {params.isoforms}
+        # """
 rule concat_mafs:
     input:
         expand("mafs/{patient}.maf", patient=patients)
