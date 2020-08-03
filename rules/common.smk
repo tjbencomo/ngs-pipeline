@@ -57,8 +57,6 @@ if tumor_only:
 else:
     sample_types = ['normal', 'tumor']
 
-wgs = True
-
 file_suffixes= ['amb', 'ann', 'bwt', 'pac', 'sa']
 
 wildcard_constraints:
