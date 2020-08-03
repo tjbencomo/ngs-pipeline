@@ -14,7 +14,8 @@ rule mutect2:
     output:
         vcf="vcfs/{patient}.unfiltered.vcf",
         idx="vcfs/{patient}.unfiltered.vcf.idx",
-        stats="vcfs/{patient}.unfiltered.vcf.stats"
+        stats="vcfs/{patient}.unfiltered.vcf.stats",
+        f1r2tar="vcfs/{patient}.f1r2.tar.gz"
     params:
         tumor="{patient}.tumor",
         normalname= ' ' if tumor_only else '-normal ' + "{patient}.normal",
@@ -29,6 +30,7 @@ rule mutect2:
             -tumor {params.tumor} -O {output.vcf} \
             --germline-resource {input.germ_res} \
             --disable-read-filter MateOnSameContigOrNoMappedMateReadFilter \
+            --f1r2-tar-gz {output.f1r2tar} \
             {params.normal_input} {params.normalname} \
             {params.pon} {params.extra}
         """
@@ -39,6 +41,18 @@ rule mutect2:
         #     --disable-read-filter MateOnSameContigOrNoMappedMateReadFilter \
         #     {params.pon} {params.extra}
         # """
+
+rule orientation_bias:
+    input:
+        "vcfs/{patient}.f1r2.tar.gz"
+    output:
+        "vcfs/{patient}.read_orientation_model.tar.gz"
+    conda:
+        "../envs/gatk.yml"
+    shell:
+    """
+    gatk LearnReadOrientationModel -I {input} -O {output}
+    """
 
 rule pileup_summaries:
     input:
@@ -75,7 +89,8 @@ rule filter_calls:
         vcf="vcfs/{patient}.unfiltered.vcf",
         ref=ref_fasta,
         contamination="qc/{patient}_contamination.table",
-        stats="vcfs/{patient}.unfiltered.vcf.stats"
+        stats="vcfs/{patient}.unfiltered.vcf.stats",
+        f1r2model="vcfs/{patient}.read_orientation_model.tar.gz"
     output:
         vcf="vcfs/{patient}.vcf",
         idx="vcfs/{patient}.vcf.idx",
@@ -89,6 +104,7 @@ rule filter_calls:
         gatk FilterMutectCalls -V {input.vcf} -R {input.ref} \
             --contamination-table {input.contamination} \
             --stats {input.stats} \
+            --ob-priors {input.f1r2model} \
             -O {output.intermediate}
         gatk SelectVariants -V {output.intermediate} -R {input.ref} -O {output.vcf} \
             --exclude-filtered -OVI
