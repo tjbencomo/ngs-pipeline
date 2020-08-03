@@ -50,9 +50,9 @@ rule orientation_bias:
     conda:
         "../envs/gatk.yml"
     shell:
-    """
-    gatk LearnReadOrientationModel -I {input} -O {output}
-    """
+        """
+        gatk LearnReadOrientationModel -I {input} -O {output}
+        """
 
 rule pileup_summaries:
     input:

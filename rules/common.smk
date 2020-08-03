@@ -57,6 +57,8 @@ if tumor_only:
 else:
     sample_types = ['normal', 'tumor']
 
+wgs = True
+
 file_suffixes= ['amb', 'ann', 'bwt', 'pac', 'sa']
 
 wildcard_constraints:
@@ -119,11 +121,22 @@ def get_vcf2maf_input(wildcards):
             'alt_isoforms' : alternate_isoforms
         }
 
-
 def get_contamination_input(wildcards):
     out = {}
-    out['tumor'] = 'qc/{patient}_tumor_pileupsummaries.table'
+    out['tumor'] = f'qc/{wildcards.patient}_tumor_pileupsummaries.table'
     if not tumor_only:
-        out['normal'] = 'qc/{patient}_normal_pileupsummaries.table'
+        out['normal'] = f'qc/{wildcards.patient}_normal_pileupsummaries.table'
     return out
 
+def get_coverage_input(wildcards):
+    seqtype = units.loc[(wildcards.patient, wildcards.sample_type), 'seqtype'][0]
+    print(seqtype)
+    files = {}
+    files['bam'] = f"bams/{wildcards.patient}.{wildcards.sample_type}.bam"
+    if seqtype == "WES":
+        files['capture'] = capture_bed
+    return files
+
+def isWGS(wildcards):
+    seqtype = units.loc[(wildcards.patient, wildcards.sample_type), 'seqtype'][0]
+    return seqtype == "WGS"
