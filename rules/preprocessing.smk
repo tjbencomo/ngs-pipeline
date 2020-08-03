@@ -134,19 +134,24 @@ rule bqsr:
             --create-output-bam-md5 --use-original-qualities
         """
 
-rule exome_cov:
+rule coverage:
     input:
-        bam="bams/{patient}.{sample_type}.bam",
-        exons=capture_bed
+        unpack(get_coverage_input)
+        # bam="bams/{patient}.{sample_type}.bam",
+        # exons=capture_bed
     output:
         "qc/{patient}_{sample_type}.mosdepth.region.dist.txt",
-        "qc/{patient}_{sample_type}.regions.bed.gz"
+        "qc/{patient}_{sample_type}.regions.bed.gz",
+        "qc/{patient}_{sample_type}.mosdepth.global.dist.txt",
+        "qc/{patient}_{sample_type}.mosdepth.summary.txt"
     threads: 4
+    params:
+        by=lambda wildcards, input: '500' if isWGS(wildcards) else input.capture
     conda:
         "../envs/qc.yml"
     shell:
         """
-        mosdepth --by {input.exons} -t {threads} qc/{wildcards.patient}_{wildcards.sample_type} \
+        mosdepth --by {params.by} -t {threads} qc/{wildcards.patient}_{wildcards.sample_type} \
             {input.bam}
         """
 

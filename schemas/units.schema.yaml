@@ -19,6 +19,9 @@ properties:
     fq2:
         type: string
         description: filepath for second FASTQ file
+    seqtype:
+        type: string
+        description: WES or WGS - indicates whether sample sequenced with exome (WES) or genome (WES) capture
 
 required:
     - patient
@@ -27,3 +30,4 @@ required:
     - platform
     - fq1
     - fq2
+    - seqtype
