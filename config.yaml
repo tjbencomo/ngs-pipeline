@@ -33,7 +33,7 @@ alternate_isoforms: None
 # Mutect2 Mode
 # Allows somatic variant calling without matched normal
 # Only advised as a last resort - try to get matched normal samples
-tumor_only = false
+tumor_only: false
 
 # Panel of Normal (PON)
 # Use PON with Mutect2 for variant calling
