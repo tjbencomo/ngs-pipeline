@@ -128,7 +128,6 @@ def get_contamination_input(wildcards):
 
 def get_coverage_input(wildcards):
     seqtype = units.loc[(wildcards.patient, wildcards.sample_type), 'seqtype'][0]
-    print(seqtype)
     files = {}
     files['bam'] = f"bams/{wildcards.patient}.{wildcards.sample_type}.bam"
     if seqtype == "WES":
