@@ -104,7 +104,7 @@ rule filter_calls:
         gatk FilterMutectCalls -V {input.vcf} -R {input.ref} \
             --contamination-table {input.contamination} \
             --stats {input.stats} \
-            --ob-priors {input.f1r2model} \
+            -ob-priors {input.f1r2model} \
             -O {output.intermediate}
         gatk SelectVariants -V {output.intermediate} -R {input.ref} -O {output.vcf} \
             --exclude-filtered -OVI
