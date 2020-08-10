@@ -13,7 +13,8 @@ rule combine_fqs:
     output:
         temp("bams/{patient}.{sample_type}.{readgroup}.unaligned.bam")
     params:
-        pl=get_platform
+        pl=get_platform,
+        tmp=tmp_dir
     conda:
         "../envs/gatk.yml"
     shell:
@@ -21,6 +22,7 @@ rule combine_fqs:
         gatk FastqToSam -F1 {input.r1} -F2 {input.r2} -O {output} \
             -SM {wildcards.patient}.{wildcards.sample_type} \
             -RG {wildcards.patient}.{wildcards.sample_type}.{wildcards.readgroup} \
+            --TMP_DIR {params.tmp} \
             -PL {params.pl}
         """
 
@@ -44,7 +46,7 @@ rule bwa:
         ref=ref_fasta
     output:
         temp("bams/{patient}.{sample_type}.{readgroup}.aligned.bam")
-    threads: 8
+    threads: 12
     conda:
         "../envs/gatk.yml"
     shell:
@@ -64,12 +66,15 @@ rule merge_bams:
         ref=ref_fasta
     output:
         temp("bams/{patient}.{sample_type}.{readgroup}.merged.bam")
+    params:
+        tmp=tmp_dir
     conda:
         "../envs/gatk.yml"
     shell:
         """
         gatk MergeBamAlignment -UNMAPPED {input.unaligned} -ALIGNED {input.aligned} \
-            -R {input.ref} -O {output} 
+            -R {input.ref} -O {output} \
+            --TMP_DIR {params.tmp}
         """
 
 rule mark_duplicates:
@@ -81,13 +86,15 @@ rule mark_duplicates:
         md5=temp("bams/{patient}.{sample_type}.markdups.bam.md5"),
         metrics="qc/gatk/{patient}_{sample_type}_dup_metrics.txt"
     params:
-        input=lambda wildcards, input: " -I  ".join(input)
+        input=lambda wildcards, input: " -I  ".join(input),
+        tmp=tmp_dir
     conda:
         "../envs/gatk.yml"
     shell:
         """
         gatk MarkDuplicates -I {params.input} -O {output.bam} -M {output.metrics} \
-            --CREATE_MD5_FILE true --ASSUME_SORT_ORDER "queryname"
+            --CREATE_MD5_FILE true --ASSUME_SORT_ORDER "queryname" \
+            --TMP_DIR {params.tmp}
         """
 
 rule sort_fix_tags:
@@ -98,16 +105,18 @@ rule sort_fix_tags:
         bam=temp("bams/{patient}.{sample_type}.sorted.bam"),
         bai=temp("bams/{patient}.{sample_type}.sorted.bai"),
         md5=temp("bams/{patient}.{sample_type}.sorted.bam.md5")
+    params:
+        tmp=tmp_dir
     conda:
         "../envs/gatk.yml"
     shell:
         """
 
         gatk SortSam -I {input.bam} -O /dev/stdout --SORT_ORDER "coordinate" \
-            --CREATE_INDEX false --CREATE_MD5_FILE false \
+            --CREATE_INDEX false --CREATE_MD5_FILE false --TMP_DIR {params.tmp} \
         | \
         gatk SetNmMdAndUqTags -I /dev/stdin -O {output.bam} -R {input.ref} \
-            --CREATE_INDEX true --CREATE_MD5_FILE true
+            --CREATE_INDEX true --CREATE_MD5_FILE true --TMP_DIR {params.tmp}
         """
 
 rule bqsr:
@@ -121,17 +130,19 @@ rule bqsr:
         md5="bams/{patient}.{sample_type}.bam.md5",
         recal="qc/{patient}.{sample_type}.recal_data.table"
     params:
-        ks=['--known-sites ' + s for s in known_sites]
+        ks=['--known-sites ' + s for s in known_sites],
+        tmp=tmp_dir
     conda:
         "../envs/gatk.yml"
     shell:
         """
         gatk BaseRecalibrator -I {input.bam} -R {input.ref} -O {output.recal} \
-            {params.ks}
+            {params.ks} --tmp-dir {params.tmp}
         gatk ApplyBQSR -I {input.bam} -R {input.ref} -O {output.bam} -bqsr {output.recal} \
             --static-quantized-quals 10 --static-quantized-quals 20 \
             --static-quantized-quals 30 --add-output-sam-program-record \
-            --create-output-bam-md5 --use-original-qualities
+            --create-output-bam-md5 \
+            --tmp-dir {params.tmp}
         """
 
 rule coverage:

@@ -27,6 +27,10 @@ capture_bed = config['capture_targets']
 germline_resource = config['germline_resource']
 contamination_resource = config['contamination_resource']
 
+tmp_dir = config['tmp_dir']
+if tmp_dir == 'None':
+    tmp_dir = 'null'
+
 vep_dir = config['vep_dir']
 vep_fasta = config['vep_fasta']
 assembly = config['assembly_version']
@@ -128,7 +132,6 @@ def get_contamination_input(wildcards):
 
 def get_coverage_input(wildcards):
     seqtype = units.loc[(wildcards.patient, wildcards.sample_type), 'seqtype'][0]
-    print(seqtype)
     files = {}
     files['bam'] = f"bams/{wildcards.patient}.{wildcards.sample_type}.bam"
     if seqtype == "WES":
