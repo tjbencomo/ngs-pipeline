@@ -40,6 +40,7 @@ alternate_isoforms: None
 # Mutect2 Mode
 # Allows somatic variant calling without matched normal
 # Only advised as a last resort - try to get matched normal samples
+<<<<<<< HEAD
 tumor_only: true
 
 # Panel of Normal (PON)
