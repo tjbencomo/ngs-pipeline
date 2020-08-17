@@ -222,3 +222,20 @@ rule plot_depths:
         "../envs/depths.yml"
     script:
         "../scripts/plot_depth.R"
+
+rule split_intervals:
+    input:
+        ref=ref_fasta,
+        intervals=genome_intervals
+    output:
+        d=directory("interval-files")
+    params:
+        N=num_workers
+    conda:
+        "../envs/gatk.yml"
+    shell:
+        """
+        gatk SplitIntervals -R {input.ref} -L {input.intervals} \
+            --scatter-count {params.N} -O {output.d} \
+            --subdivision-mode BALANCING_WITHOUT_INTERVAL_SUBDIVISION
+        """
