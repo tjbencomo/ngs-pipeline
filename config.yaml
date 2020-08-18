@@ -1,7 +1,7 @@
 # CSV file with single column, patient, with every patient ID
-patients: patients.csv
+patients: patients_test.csv
 # CSV file with info on each sample
-units: units.csv
+units: units_test.csv
 
 # Reference genome sources
 # Directory where reference fasta and supporting files are stored
@@ -12,7 +12,7 @@ ref_fasta: Homo_sapiens_assembly38.fasta
 # Should all be in the reference directory
 known_sites: dbsnp_146.hg38.vcf.gz, resources-broad-hg38-v0-Homo_sapiens_assembly38.known_indels.vcf.gz, 1000G_phase1.snps.high_confidence.hg38.vcf.gz
 # BED file with exome regions that were targeted for capture. Doesn't have to be in ref_dir
-capture_targets: None
+capture_targets: /home/groups/carilee/refs/coverage/agilent-exonsV5/S04380110_Covered.bed
 # AF only VCF with common allele frequencies - use gnomAD file
 germline_resource: /home/groups/carilee/refs/gnomAD/af-only-gnomad.hg38.vcf.gz
 # Biallelic variants only VCF with AF data - use EXAC file
@@ -23,6 +23,10 @@ contamination_resource: /home/groups/carilee/refs/gnomAD/small_exac_common_3.hg3
 # Set this variable to an alternative filepath that has larger storage (ie $SCRATCH) if
 # GATK is running out of storage during a run
 tmp_dir: /scratch/users/tbencomo/tmp/
+
+## Parallelism
+# Number of Mutect2 workers per sample
+num_workers: 2
 
 # Annotation data sources
 # Directory with VEP annotation data
@@ -40,7 +44,7 @@ alternate_isoforms: None
 # Mutect2 Mode
 # Allows somatic variant calling without matched normal
 # Only advised as a last resort - try to get matched normal samples
-tumor_only: true
+tumor_only: false
 
 # Panel of Normal (PON)
 # Use PON with Mutect2 for variant calling

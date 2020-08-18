@@ -29,6 +29,7 @@ contamination_resource = config['contamination_resource']
 
 num_workers = config['num_workers']
 
+
 tmp_dir = config['tmp_dir']
 if tmp_dir == 'None':
     tmp_dir = 'null'
@@ -146,11 +147,17 @@ def isWGS(wildcards):
 
 
 def get_intervals():
-    d = "interval-files"
-    if not os.path.isdir(d):
-        raise ValueError("interval-files directory does not exist!")
-    files = os.listdir(d)
-    files = [f for f in files if 'scatter' in f]
-    ints = [f[0:f.find('-')] for f in files]
+    ints = []
+    for i in range(num_workers):
+        num_zeros = 4 - len(str(i))
+        interval = '0' * num_zeros + str(i)
+        ints.append(interval)
     return ints
+   
+def get_interval_files():
+    ints = get_intervals()
+    files = [i + '-scattered.interval_list' for i in ints]
+    files = [os.path.join("interval-files", f) for f in files]
+    return files
 
+interval_files = get_interval_files()
