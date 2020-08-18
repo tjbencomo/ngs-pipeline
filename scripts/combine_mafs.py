@@ -19,6 +19,8 @@ def concat_mafs(files):
         df = pd.read_csv(f, sep = "\t", skiprows=1)
         mafs.append(df)
     all_mafs = pd.concat(mafs)
+    if (all_mafs.shape[0] == 0):
+        raise ValueError("Empty MAF with no variants!")
     all_mafs['patient'] = all_mafs['Tumor_Sample_Barcode'].str.split(".", expand=True)[0]
     return all_mafs 
 

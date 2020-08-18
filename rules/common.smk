@@ -27,6 +27,9 @@ capture_bed = config['capture_targets']
 germline_resource = config['germline_resource']
 contamination_resource = config['contamination_resource']
 
+num_workers = config['num_workers']
+
+
 tmp_dir = config['tmp_dir']
 if tmp_dir == 'None':
     tmp_dir = 'null'
@@ -141,3 +144,20 @@ def get_coverage_input(wildcards):
 def isWGS(wildcards):
     seqtype = units.loc[(wildcards.patient, wildcards.sample_type), 'seqtype'][0]
     return seqtype == "WGS"
+
+
+def get_intervals():
+    ints = []
+    for i in range(num_workers):
+        num_zeros = 4 - len(str(i))
+        interval = '0' * num_zeros + str(i)
+        ints.append(interval)
+    return ints
+   
+def get_interval_files():
+    ints = get_intervals()
+    files = [i + '-scattered.interval_list' for i in ints]
+    files = [os.path.join("interval-files", f) for f in files]
+    return files
+
+interval_files = get_interval_files()

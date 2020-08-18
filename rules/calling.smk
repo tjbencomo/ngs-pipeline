@@ -10,12 +10,13 @@ rule mutect2:
     input:
         unpack(get_mutect2_input),
         ref=ref_fasta,
-        germ_res=germline_resource
+        germ_res=germline_resource,
+        interval="interval-files/{interval}-scattered.interval_list"
     output:
-        vcf="vcfs/{patient}.unfiltered.vcf",
-        idx="vcfs/{patient}.unfiltered.vcf.idx",
-        stats="vcfs/{patient}.unfiltered.vcf.stats",
-        f1r2tar="vcfs/{patient}.f1r2.tar.gz"
+        vcf="vcfs/{patient}.{interval}.unfiltered.vcf",
+        idx="vcfs/{patient}.{interval}.unfiltered.vcf.idx",
+        stats="vcfs/{patient}.{interval}.unfiltered.vcf.stats",
+        f1r2tar="vcfs/{patient}.{interval}.f1r2.tar.gz"
     params:
         tumor="{patient}.tumor",
         normalname= ' ' if tumor_only else '-normal ' + "{patient}.normal",
@@ -29,29 +30,25 @@ rule mutect2:
         gatk Mutect2 -R {input.ref} -I {input.tumor} \
             -tumor {params.tumor} -O {output.vcf} \
             --germline-resource {input.germ_res} \
-            --disable-read-filter MateOnSameContigOrNoMappedMateReadFilter \
             --f1r2-tar-gz {output.f1r2tar} \
+            -L {input.interval} \
             {params.normal_input} {params.normalname} \
             {params.pon} {params.extra}
         """
-        # """
-        # gatk Mutect2 -R {input.ref} -I {input.normal} -I {input.tumor} \
-        #     -normal {params.normal} -tumor {params.tumor} -O {output.vcf} \
-        #     --germline-resource {input.germ_res} \
-        #     --disable-read-filter MateOnSameContigOrNoMappedMateReadFilter \
-        #     {params.pon} {params.extra}
-        # """
 
 rule orientation_bias:
     input:
-        "vcfs/{patient}.f1r2.tar.gz"
+        expand("vcfs/{patient}.{interval}.f1r2.tar.gz", patient=patients, interval=get_intervals())
+        # "vcfs/{patient}.f1r2.tar.gz"
     output:
         "vcfs/{patient}.read_orientation_model.tar.gz"
+    params:
+        i=lambda wildcards, input: ['-I ' + d for d in input]
     conda:
         "../envs/gatk.yml"
     shell:
         """
-        gatk LearnReadOrientationModel -I {input} -O {output}
+        gatk LearnReadOrientationModel {params.i} -O {output}
         """
 
 rule pileup_summaries:
@@ -79,9 +76,37 @@ rule calculate_contamination:
         "../envs/gatk.yml"
     shell:
         """
-        gatk CalculateContamination -I {input}  \
-        {params.matched} \
-        -O {output}
+        gatk CalculateContamination -I {input.tumor}  \
+            {params.matched} \
+            -O {output}
+        """
+
+rule merge_vcfs:
+    input:
+        expand("vcfs/{patient}.{interval}.unfiltered.vcf", patient=patients, interval=get_intervals())
+    output:
+        vcf="vcfs/{patient}.unfiltered.vcf"
+    params:
+        i=lambda wildcards, input: ['-I ' + vcf for vcf in input]
+    conda:
+        "../envs/gatk.yml"
+    shell:
+        """
+        gatk MergeVcfs {params.i} -O {output.vcf}
+        """
+
+rule merge_stats:
+    input:
+        expand("vcfs/{patient}.{interval}.unfiltered.vcf.stats", patient=patients, interval=get_intervals())
+    output:
+        stats="vcfs/{patient}.unfiltered.vcf.stats"
+    params:
+        i=lambda wildcards, input: ['-stats ' + s for s in input]
+    conda:
+        "../envs/gatk.yml"
+    shell:
+        """
+        gatk MergeMutectStats {params.i} -O {output.stats} 
         """
 
 rule filter_calls:

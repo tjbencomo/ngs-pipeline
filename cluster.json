@@ -2,11 +2,11 @@
     "__default__" :
     {
         "account" : "tbencomo",
-        "time" : "00:10:00",
+        "time" : "01:00:00",
         "ncpus" : 1,
-        "mem" : "4G",
+        "mem" : "8G",
         "partition" : "normal",
-        "out" : "/scratch/users/tbencomo/logs/slurm-{jobid}.out"
+        "out" : "/scratch/users/tbencomo/logs/test-ngs-pipeline/slurm-{jobid}.out"
     },
     "combine_fqs" :
     {
@@ -70,7 +70,7 @@
     },
     "mutect2" :
     {
-        "time" : "20:00:00",
+        "time" : "12:00:00",
         "mem" : "32G"
     },
     "pileup_summaries" :

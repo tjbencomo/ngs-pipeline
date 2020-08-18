@@ -139,8 +139,7 @@ rule bqsr:
         gatk BaseRecalibrator -I {input.bam} -R {input.ref} -O {output.recal} \
             {params.ks} --tmp-dir {params.tmp}
         gatk ApplyBQSR -I {input.bam} -R {input.ref} -O {output.bam} -bqsr {output.recal} \
-            --static-quantized-quals 10 --static-quantized-quals 20 \
-            --static-quantized-quals 30 --add-output-sam-program-record \
+            --add-output-sam-program-record \
             --create-output-bam-md5 \
             --tmp-dir {params.tmp}
         """
@@ -222,3 +221,21 @@ rule plot_depths:
         "../envs/depths.yml"
     script:
         "../scripts/plot_depth.R"
+
+rule split_intervals:
+    input:
+        ref=ref_fasta,
+        intervals=genome_intervals
+    output:
+        interval_files
+    params:
+        N=num_workers,
+        d="interval-files"
+    conda:
+        "../envs/gatk.yml"
+    shell:
+        """
+        gatk SplitIntervals -R {input.ref} -L {input.intervals} \
+            --scatter-count {params.N} -O {params.d} \
+            --subdivision-mode BALANCING_WITHOUT_INTERVAL_SUBDIVISION
+        """
