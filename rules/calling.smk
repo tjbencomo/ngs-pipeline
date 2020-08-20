@@ -38,7 +38,8 @@ rule mutect2:
 
 rule orientation_bias:
     input:
-        expand("vcfs/{patient}.{interval}.f1r2.tar.gz", patient=patients, interval=get_intervals())
+        get_orientationbias_input
+        # expand("vcfs/{patient}.{interval}.f1r2.tar.gz", patient=patients, interval=get_intervals())
         # "vcfs/{patient}.f1r2.tar.gz"
     output:
         "vcfs/{patient}.read_orientation_model.tar.gz"
@@ -83,7 +84,8 @@ rule calculate_contamination:
 
 rule merge_vcfs:
     input:
-        expand("vcfs/{patient}.{interval}.unfiltered.vcf", patient=patients, interval=get_intervals())
+        get_mergevcfs_input
+        # expand("vcfs/{patient}.{interval}.unfiltered.vcf", patient=patients, interval=get_intervals())
     output:
         vcf="vcfs/{patient}.unfiltered.vcf"
     params:
@@ -97,7 +99,8 @@ rule merge_vcfs:
 
 rule merge_stats:
     input:
-        expand("vcfs/{patient}.{interval}.unfiltered.vcf.stats", patient=patients, interval=get_intervals())
+        get_mergestats_input
+        # expand("vcfs/{patient}.{interval}.unfiltered.vcf.stats", patient=patients, interval=get_intervals())
     output:
         stats="vcfs/{patient}.unfiltered.vcf.stats"
     params:

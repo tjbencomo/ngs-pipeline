@@ -160,4 +160,19 @@ def get_interval_files():
     files = [os.path.join("interval-files", f) for f in files]
     return files
 
+def get_orientationbias_input(wildcards):
+    intervals = get_intervals()
+    files = [f"vcfs/{wildcards.patient}.{i}.f1r2.tar.gz" for i in intervals]
+    return files
+
+def get_mergevcfs_input(wildcards):
+    intervals = get_intervals()
+    files = [f"vcfs/{wildcards.patient}.{i}.unfiltered.vcf" for i in intervals]
+    return files
+
+def get_mergestats_input(wildcards):
+    intervals = get_intervals()
+    files = [f"vcfs/{wildcards.patient}.{i}.unfiltered.vcf.stats" for i in intervals]
+    return files
+
 interval_files = get_interval_files()
