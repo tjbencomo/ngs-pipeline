@@ -133,6 +133,7 @@ rule filter_calls:
             --contamination-table {input.contamination} \
             --stats {input.stats} \
             -ob-priors {input.f1r2model} \
+            --min-reads-per-strand 1 \
             -O {output.intermediate}
         gatk SelectVariants -V {output.intermediate} -R {input.ref} -O {output.vcf} \
             --exclude-filtered -OVI
