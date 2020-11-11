@@ -123,8 +123,8 @@ rule filter_calls:
         vcf="vcfs/{patient}.vcf",
         idx="vcfs/{patient}.vcf.idx",
         intermediate=temp("vcfs/{patient}.unselected.vcf"),
-        inter_idx=temp("vcfs/{patient}.unselected.vcf.filteringStats.tsv"),
-        inter_stats=temp("vcfs/{patient}.unselected.vcf.idx")
+        inter_stats="vcfs/{patient}.unselected.vcf.filteringStats.tsv",
+        inter_idx=temp("vcfs/{patient}.unselected.vcf.idx")
     conda:
         "../envs/gatk.yml"
     shell:
