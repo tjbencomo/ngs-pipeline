@@ -29,6 +29,7 @@ contamination_resource = config['contamination_resource']
 
 num_workers = config['num_workers']
 
+stringent_filtering = config['stringent_filtering']
 
 tmp_dir = config['tmp_dir']
 if tmp_dir == 'None':

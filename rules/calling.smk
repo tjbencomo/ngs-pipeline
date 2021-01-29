@@ -204,6 +204,8 @@ rule concat_mafs:
         expand("mafs/{patient}.maf", patient=patients)
     output:
         "mafs/variants.maf"
+    params:
+        stringent_criteria = stringent_filtering
     conda:
         "../envs/pandas.yml"
     script:

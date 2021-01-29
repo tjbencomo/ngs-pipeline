@@ -28,6 +28,14 @@ tmp_dir: /scratch/users/tbencomo/tmp/
 # Number of Mutect2 workers per sample
 num_workers: 2
 
+# Apply additional thresholds to filter variants
+# When set to true, requires each SNV has a minimum of
+# 15 reads covering the position and at least 5 reads
+# with the mutant allele.
+# When false, only use FilterMutectCalls criteria
+stringent_filtering: false
+
+
 # Annotation data sources
 # Directory with VEP annotation data
 vep_dir: /home/groups/carilee/refs/vep_data
