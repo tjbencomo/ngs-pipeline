@@ -91,6 +91,13 @@ chmod +x parseJobID.sh
 snakemake --cluster-config cluster.json --cluster 'sbatch $(./parseJobID.sh {dependencies}) -t {cluster.time} --mem {cluster.mem} -p {cluster.partition} -c {cluster.ncpus} - o {cluster.out}' --jobs 100 --notemp --immediate-submit
 ```
 
+## Deviations from Broad Pipeline
+`ngs-pipeline` differs from the Broad's Somatic Variant pipeline in the following ways:
+* `FilterMutectCalls` is run with additional flags. All variants must have 1 read from each direction to be included in the final callset. 
+This can be disabled in `rules/calling.smk`
+* We provide the option for more stringent variant filtering criteria with the `stringent_filtering` setting in `config.yaml`. 
+This is turned off by default
+
 ## Environments
 `snakemake` is required to run `ngs-pipeline`, and other programs (`samtools`, `gatk`, etc)
 are required for various steps in the pipeline. There are many ways to manage the required
