@@ -15,8 +15,7 @@ rule combine_fqs:
     params:
         pl=get_platform,
         tmp=tmp_dir
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk FastqToSam -F1 {input.r1} -F2 {input.r2} -O {output} \
@@ -32,8 +31,7 @@ rule bwa_index:
         ref_fasta
     output:
         [f"{ref_fasta}.{suffix}" for suffix in file_suffixes]
-    conda:
-        "../envs/gatk.yml"
+    singularity: bwa_env
     shell:
         """
         bwa index {input}
@@ -47,8 +45,7 @@ rule bwa:
     output:
         temp("bams/{patient}.{sample_type}.{readgroup}.aligned.bam")
     threads: 12
-    conda:
-        "../envs/gatk.yml"
+    singularity: bwa_env
     shell:
         """
         gatk SamToFastq -I {input.bam} -F /dev/stdout -INTER true -NON_PF true \
@@ -68,8 +65,7 @@ rule merge_bams:
         temp("bams/{patient}.{sample_type}.{readgroup}.merged.bam")
     params:
         tmp=tmp_dir
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk MergeBamAlignment -UNMAPPED {input.unaligned} -ALIGNED {input.aligned} \

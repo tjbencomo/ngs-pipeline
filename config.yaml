@@ -61,3 +61,14 @@ use_pon: true
 pon_vcf: /home/groups/carilee/refs/broad-pons/1000g_pon.hg38.vcf.gz
 # GATK, Picard, or BED style interval file with intervals to use for Panel of Normal Creation
 interval_file: /home/groups/carilee/refs/hg38/wgs_calling_regions.hg38.interval_list
+
+## Singularity Containers
+## This specifies the container to use for various steps in the pipeline
+## The value can be any string (either local path or url) that can be queried using singularity pull
+gatk_container: docker://broadinstitute/gatk:4.2.0.0
+multiqc_container: docker://ewels/multiqc:v1.6
+mosdepth_container: docker://brentp/mosdepth:v0.3.1
+fastqc_container: docker://biocontainers/fastqc:v0.11.9_cv8
+bwa_container: docker://tbencomo/bwa-samtools
+vep_container: docker://tbencomo/vep-vcf2maf
+eda_container: docker://tbencomo/eda

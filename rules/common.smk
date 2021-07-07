@@ -67,6 +67,15 @@ else:
 
 file_suffixes= ['amb', 'ann', 'bwt', 'pac', 'sa']
 
+# Load container info
+gatk_env = config['gatk_container']
+multiqc_env = config['multiqc_container']
+mosdepth_env = config['mosdepth_container']
+fastqc_env = config['fastqc_container']
+bwa_env = config['bwa_container']
+vep_env = config['vep_container']
+eda_env = config['eda_container']
+
 wildcard_constraints:
     patient="|".join(patients),
     sample_type="|".join(sample_types)
