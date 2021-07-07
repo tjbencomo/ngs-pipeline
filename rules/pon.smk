@@ -10,8 +10,7 @@ rule mutect2_pon:
         vcf="pon/{patient}.pon.vcf.gz",
         idx="pon/{patient}.pon.vcf.gz.tbi",
         stats="pon/{patient}.pon.vcf.gz.stats"
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk Mutect2 -I {input.bam} -R {input.ref} -O {output.vcf} \
@@ -27,8 +26,7 @@ rule gather_variants:
         directory("pon/pon_db")
     params:
         vcfs=lambda wildcards, input: " -V ".join(input.vcfs)
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk GenomicsDBImport -R {input.ref} --genomicsdb-workspace-path {output} \
@@ -42,8 +40,7 @@ rule create_pon:
     output:
         vcf="pon/pon.vcf.gz",
         idx="pon/pon.vcf.gz.tbi"
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk CreateSomaticPanelOfNormals -R {input.ref} -V gendb://{input.var} -O {output.vcf}

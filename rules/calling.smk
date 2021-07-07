@@ -23,8 +23,7 @@ rule mutect2:
         normal_input=lambda wildcards, input: ' ' if tumor_only else "-I " + input.normal,
         pon="--panel-of-normals " + pon_vcf,
         extra=""
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk Mutect2 -R {input.ref} -I {input.tumor} \
@@ -45,8 +44,7 @@ rule orientation_bias:
         "vcfs/{patient}.read_orientation_model.tar.gz"
     params:
         i=lambda wildcards, input: ['-I ' + d for d in input]
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk LearnReadOrientationModel {params.i} -O {output}
@@ -58,8 +56,7 @@ rule pileup_summaries:
         germ_res=contamination_resource
     output:
         "qc/{patient}_{sample_type}_pileupsummaries.table"
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk GetPileupSummaries -I {input.bam} -V {input.germ_res} \
@@ -73,8 +70,7 @@ rule calculate_contamination:
         "qc/{patient}_contamination.table"
     params:
         matched=lambda wildcards, input:'' if tumor_only else '-matched ' + input.normal
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk CalculateContamination -I {input.tumor}  \
@@ -90,8 +86,7 @@ rule merge_vcfs:
         vcf="vcfs/{patient}.unfiltered.vcf"
     params:
         i=lambda wildcards, input: ['-I ' + vcf for vcf in input]
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk MergeVcfs {params.i} -O {output.vcf}
@@ -105,8 +100,7 @@ rule merge_stats:
         stats="vcfs/{patient}.unfiltered.vcf.stats"
     params:
         i=lambda wildcards, input: ['-stats ' + s for s in input]
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk MergeMutectStats {params.i} -O {output.stats} 
@@ -125,8 +119,7 @@ rule filter_calls:
         intermediate=temp("vcfs/{patient}.unselected.vcf"),
         inter_stats="vcfs/{patient}.unselected.vcf.filteringStats.tsv",
         inter_idx=temp("vcfs/{patient}.unselected.vcf.idx")
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk FilterMutectCalls -V {input.vcf} -R {input.ref} \
@@ -167,8 +160,7 @@ rule vcf2maf:
     output:
         vep_vcf="vcfs/{patient}.vep.vcf",
         maf="mafs/{patient}.maf"
-    conda:
-        "../envs/annotation.yml"
+    singularity: vep_env
     params:
         assembly=assembly,
         center=center,
@@ -206,7 +198,6 @@ rule concat_mafs:
         "mafs/variants.maf"
     params:
         stringent_criteria = stringent_filtering
-    conda:
-        "../envs/pandas.yml"
+    singularity: eda_env
     script:
         "../scripts/combine_mafs.py"

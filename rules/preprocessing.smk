@@ -84,8 +84,7 @@ rule mark_duplicates:
     params:
         input=lambda wildcards, input: " -I  ".join(input),
         tmp=tmp_dir
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk MarkDuplicates -I {params.input} -O {output.bam} -M {output.metrics} \
@@ -103,8 +102,7 @@ rule sort_fix_tags:
         md5=temp("bams/{patient}.{sample_type}.sorted.bam.md5")
     params:
         tmp=tmp_dir
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
 
@@ -128,8 +126,7 @@ rule bqsr:
     params:
         ks=['--known-sites ' + s for s in known_sites],
         tmp=tmp_dir
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk BaseRecalibrator -I {input.bam} -R {input.ref} -O {output.recal} \
@@ -153,8 +150,7 @@ rule coverage:
     threads: 4
     params:
         by=lambda wildcards, input: '500' if isWGS(wildcards) else input.capture
-    conda:
-        "../envs/qc.yml"
+    singularity: mosdepth_env
     shell:
         """
         mosdepth --by {params.by} -t {threads} qc/{wildcards.patient}_{wildcards.sample_type} \
@@ -166,8 +162,7 @@ rule stats:
         "bams/{patient}.{sample_type}.bam"
     output:
         "qc/{patient}.{sample_type}.flagstat"
-    conda:
-        "../envs/gatk.yml"
+    singularity: bwa_env
     shell:
         """
         samtools flagstat {input} > {output}
@@ -179,8 +174,7 @@ rule fastqc:
     output:
         html="qc/fastqc/{patient}_{sample_type}.html",
         zip="qc/fastqc/{patient}_{sample_type}_fastqc.zip"
-    conda:
-        "../envs/qc.yml"
+    singularity: fastqc_env
     wrapper:
         "0.45.0/bio/fastqc"
 
@@ -193,8 +187,7 @@ rule multiqc:
         "qc/multiqc_report.html"
     log:
         "logs/multiqc.log"
-    conda:
-        "../envs/qc.yml"
+    singularity: multiqc_env
     wrapper:
         "0.50.4/bio/multiqc"
 
@@ -203,8 +196,7 @@ rule seq_depths:
         expand("qc/{patient}_{sample_type}.regions.bed.gz", patient=patients, sample_type=sample_types)
     output:
         "qc/depths.csv"
-    conda:
-        "../envs/pandas.yml"
+    singularity: eda_env
     script:
         "../scripts/count_depth.py"
 
@@ -213,8 +205,7 @@ rule plot_depths:
         "qc/depths.csv"
     output:
         "qc/depths.svg"
-    conda:
-        "../envs/depths.yml"
+    singularity: eda_env
     script:
         "../scripts/plot_depth.R"
 
@@ -227,8 +218,7 @@ rule split_intervals:
     params:
         N=num_workers,
         d="interval-files"
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk SplitIntervals -R {input.ref} -L {input.intervals} \
