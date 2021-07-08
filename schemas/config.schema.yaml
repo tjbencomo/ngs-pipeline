@@ -32,9 +32,6 @@ properties:
     vep_dir:
         type: string
         description: path to folder where Ensembl Variant Annotation cache files are stored. Both cache and FASTA file are required. See https://uswest.ensembl.org/info/docs/tools/vep/script/vep_cache.html#cache for info on installing these files
-    vep_fasta:
-        type: string
-        description: filepath pointing to Ensembl's assembly genome. Needed for HGVS annotation. Make sure the index files have already been generated before running ngs-pipeline
     assembly_version:
         type: string
         description: name of assembly to use. Use GRCh38 if you did a vanilla VEP install
@@ -61,7 +58,6 @@ required:
     - germline_resource
     - contamination_resource
     - vep_dir
-    - vep_fasta
     - assembly_version
     - center_name
     - use_pon

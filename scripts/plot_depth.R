@@ -1,3 +1,5 @@
+Sys.setenv("TZDIR"=paste0(Sys.getenv("CONDA_PREFIX"), "/share/zoneinfo"))
+
 library(readr)
 library(dplyr)
 library(ggplot2)

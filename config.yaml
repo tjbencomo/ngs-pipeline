@@ -26,7 +26,7 @@ tmp_dir: /scratch/users/tbencomo/tmp/
 
 ## Parallelism
 # Number of Mutect2 workers per sample
-num_workers: 2
+num_workers: 1
 
 # Apply additional thresholds to filter variants
 # When set to true, requires each SNV has a minimum of
@@ -38,11 +38,11 @@ stringent_filtering: false
 
 # Annotation data sources
 # Directory with VEP annotation data
-vep_dir: /home/groups/carilee/refs/vep_data
+vep_dir: /home/groups/carilee/refs/vep
 # Assembly version name
 assembly_version: GRCh38
 # Value for Center field in the combined MAF
-center_name: lee-lab
+center_name: Lee Lab
 # Alternate Isoforms For vcf2maf Selection. Set as None to use Ensembl defaults
 alternate_isoforms: None
 
@@ -63,10 +63,9 @@ interval_file: /home/groups/carilee/refs/hg38/wgs_calling_regions.hg38.interval_
 ## Singularity Containers
 ## This specifies the container to use for various steps in the pipeline
 ## The value can be any string (either local path or url) that can be queried using singularity pull
-gatk_container: docker://broadinstitute/gatk:4.2.0.0
-multiqc_container: docker://ewels/multiqc:v1.6
-mosdepth_container: docker://brentp/mosdepth:v0.3.1
+gatk_container: docker://tbencomo/gatk-bwa-samtools
+multiqc_container: docker://ewels/multiqc:v1.11
+mosdepth_container: docker://tbencomo/mosdepth
 fastqc_container: docker://biocontainers/fastqc:v0.11.9_cv8
-bwa_container: docker://tbencomo/bwa-samtools
 vep_container: docker://tbencomo/vep-vcf2maf
 eda_container: docker://tbencomo/eda

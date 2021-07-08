@@ -36,7 +36,6 @@ if tmp_dir == 'None':
     tmp_dir = 'null'
 
 vep_dir = config['vep_dir']
-vep_fasta = config['vep_fasta']
 assembly = config['assembly_version']
 center = config['center_name']
 alternate_isoforms = config['alternate_isoforms']
@@ -72,7 +71,6 @@ gatk_env = config['gatk_container']
 multiqc_env = config['multiqc_container']
 mosdepth_env = config['mosdepth_container']
 fastqc_env = config['fastqc_container']
-bwa_env = config['bwa_container']
 vep_env = config['vep_container']
 eda_env = config['eda_container']
 

@@ -26,21 +26,21 @@
         "ncpus": 1,
         "mem" : "16G"
     },
-    "mark_duplicates" :
+    "markdups_sort" :
     {
         "time" : "3:00:00",
-        "ncpus" : 1,
-        "mem" : "32G"
-    },
-    "sort_fix_tags" :
-    {
-        "time" : "3:00:00",
-        "ncpus" : 1,
+        "ncpus" : 4,
         "mem" : "32G"
     },
     "bqsr" :
     {
-        "time" : "4:00:00",
+        "time" : "2:00:00",
+        "ncpus" : 1,
+        "mem" : "24G"
+    },
+    "apply_bqsr" :
+    {
+        "time" : "2:00:00",
         "ncpus" : 1,
         "mem" : "24G"
     },

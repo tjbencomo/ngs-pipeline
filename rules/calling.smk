@@ -13,9 +13,9 @@ rule mutect2:
         germ_res=germline_resource,
         interval="interval-files/{interval}-scattered.interval_list"
     output:
-        vcf="vcfs/{patient}.{interval}.unfiltered.vcf",
-        idx="vcfs/{patient}.{interval}.unfiltered.vcf.idx",
-        stats="vcfs/{patient}.{interval}.unfiltered.vcf.stats",
+        vcf=temp("vcfs/{patient}.{interval}.unfiltered.vcf"),
+        idx=temp("vcfs/{patient}.{interval}.unfiltered.vcf.idx"),
+        stats=temp("vcfs/{patient}.{interval}.unfiltered.vcf.stats"),
         f1r2tar="vcfs/{patient}.{interval}.f1r2.tar.gz"
     params:
         tumor="{patient}.tumor",
@@ -172,9 +172,10 @@ rule vcf2maf:
         vep_path=$(dirname "$vep_fp")
         vcf2maf.pl --input-vcf {input.vcf} --output-maf {output.maf} \
             --tumor-id {wildcards.patient}.tumor \
-            --ref-fasta {input.fasta} --vep-data {input.vep_dir} \
+            --ref-fasta {input.fasta} \
+            --vep-data {input.vep_dir} \
             --ncbi-build {params.assembly} \
-            --filter-vcf 0 --vep-path $vep_path \
+            --vep-path $vep_path \
             --maf-center {params.center} \
             {params.normalid} \
             {params.isoforms}
