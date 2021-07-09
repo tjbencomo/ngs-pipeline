@@ -31,6 +31,7 @@ rule mutect2:
             --germline-resource {input.germ_res} \
             --f1r2-tar-gz {output.f1r2tar} \
             -L {input.interval} \
+            -ip 100 \
             {params.normal_input} {params.normalname} \
             {params.pon} {params.extra}
         """

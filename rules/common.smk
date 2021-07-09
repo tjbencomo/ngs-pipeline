@@ -6,6 +6,7 @@
 # stores functions to aide with wildcard creation
 
 import sys
+import os
 import pandas as pd
 from snakemake.utils import validate
 from snakemake.utils import min_version
@@ -18,9 +19,11 @@ patients = pd.read_csv(config['patients'])['patient']
 units = pd.read_csv(config['units'], dtype=str).set_index(["patient", "sample", "readgroup"], drop=False)
 validate(units, schema = "../schemas/units.schema.yaml")
 units = units.sort_index()
+seqtype= config['sequencing_type']
 
 ref_dir = config['ref_dir']
 ref_fasta = os.path.join(ref_dir, config['ref_fasta'])
+ref_dict = ref_fasta.replace('.fasta', '.dict') #used for BedToIntervals
 known_sites = config['known_sites'].replace(' ', '').split(',')
 known_sites = [os.path.join(ref_dir, s) for s in known_sites]
 capture_bed = config['capture_targets']
@@ -57,7 +60,10 @@ else :
     else:
         build_pon = False
         pon_vcf = config['pon_vcf']
-genome_intervals = config['interval_file']
+
+regions_bed = config['genomic_regions']
+regions_gatk = os.path.basename(regions_bed).replace('.bed', '.interval_list')
+regions_gatk = os.path.join('interval-files', regions_gatk)
 
 if tumor_only:
     sample_types = ['tumor']
@@ -142,11 +148,10 @@ def get_contamination_input(wildcards):
     return out
 
 def get_coverage_input(wildcards):
-    seqtype = units.loc[(wildcards.patient, wildcards.sample_type), 'seqtype'][0]
     files = {}
     files['bam'] = f"bams/{wildcards.patient}.{wildcards.sample_type}.bam"
     if seqtype == "WES":
-        files['capture'] = capture_bed
+        files['regions'] = regions_bed
     return files
 
 def isWGS(wildcards):

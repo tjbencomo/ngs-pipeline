@@ -79,7 +79,8 @@ rule markdups_sort:
         get_dedup_input
     output:
         bam=temp("bams/{patient}.{sample_type}.sorted.bam"),
-        bai=temp("bams/{patient}.{sample_type}.sorted.bai")
+        bai=temp("bams/{patient}.{sample_type}.sorted.bam.bai"),
+        sbi=temp("bams/{patient}.{sample_type}.sorted.bam.sbi")
     params:
         inbams=lambda wildcards, input: " -I  ".join(input),
         tmp=tmp_dir
@@ -90,7 +91,7 @@ rule markdups_sort:
         gatk MarkDuplicatesSpark \
             -I {params.inbams} \
             -O {output.bam} \
-            --tmp-dir {params.tmp}
+            --tmp-dir {params.tmp} \
             --conf 'spark.executor.cores={threads}' \
             --conf 'spark.local.dir={params.tmp}'
         """
@@ -210,7 +211,7 @@ rule coverage:
         "qc/{patient}_{sample_type}.mosdepth.summary.txt"
     threads: 4
     params:
-        by=lambda wildcards, input: '500' if isWGS(wildcards) else input.capture
+        by=lambda wildcards, input: '500' if seqtype == 'WGS' else input.capture
     singularity: mosdepth_env
     shell:
         """
@@ -235,17 +236,15 @@ rule fastqc:
     output:
         html="qc/fastqc/{patient}.{sample_type}_fastqc.html",
         zipdata="qc/fastqc/{patient}.{sample_type}_fastqc.zip"
-    log:
-        "logs/fastqc/{patient}.{sample_type}.log"
     singularity: fastqc_env
     shell:
         """
         tmpdir=qc/fastqc/.{wildcards.patient}-{wildcards.sample_type} 
-        mkdir $tmpdir \
-            && fastqc --outdir $tmpdir {input} \
-            && mv $tmpdir/{wildcards.patient}.{wildcards.sample_type}_fastqc.html {output.html} \
-            && mv $tmpdir/{wildcards.patient}.{wildcards.sample_type}_fastqc.zip {output.zipdata} \
-            && rm -r $tmpdir &> >(tee {log})
+        mkdir $tmpdir 
+        fastqc --outdir $tmpdir {input} 
+        mv $tmpdir/{wildcards.patient}.{wildcards.sample_type}_fastqc.html {output.html} 
+        mv $tmpdir/{wildcards.patient}.{wildcards.sample_type}_fastqc.zip {output.zipdata} 
+        rm -r $tmpdir
         """
 
 rule multiqc:
@@ -282,7 +281,7 @@ rule plot_depths:
 rule split_intervals:
     input:
         ref=ref_fasta,
-        intervals=genome_intervals
+        intervals=regions_gatk
     output:
         interval_files
     params:
@@ -294,4 +293,18 @@ rule split_intervals:
         gatk SplitIntervals -R {input.ref} -L {input.intervals} \
             --scatter-count {params.N} -O {params.d} \
             --subdivision-mode BALANCING_WITHOUT_INTERVAL_SUBDIVISION
+        """
+rule make_gatk_regions:
+    input:
+        bed=regions_bed,
+        d=ref_dict
+    output:
+        intlist=regions_gatk
+    singularity: gatk_env
+    shell:
+        """
+        gatk BedToIntervalList \
+            -I {input.bed} \
+            -SD {input.d} \
+            -O {output}
         """

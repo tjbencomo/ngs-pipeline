@@ -1,7 +1,21 @@
 # CSV file with single column, patient, with every patient ID
 patients: patients_test.csv
-# CSV file with info on each sample
+# CSV file with info on each sample/read group
 units: units_test.csv
+
+# Sequencing Type
+# For whole exome, specify WES
+# For whole genome, specify WGS
+# If you have both WES and WGS samples, process them separately with 2 versions of this pipeline
+# This is needed as the data types require different computational resources and genomic regions to interrogate
+sequencing_type: WES
+
+# Genomic Regions
+# Uncompressed BED (.bed) file with regions for variant calling
+# This file should be uncompressed. 
+# For WES data, coverage is evaluated based on reads in these regions
+# For WGS data, coverage is evaluated across the genome in 500 bp windows
+genomic_regions: /home/groups/carilee/refs/coverage/agilent-exonsV5/S04380110_Covered.bed
 
 # Reference genome sources
 # Directory where reference fasta and supporting files are stored
