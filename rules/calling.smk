@@ -82,7 +82,6 @@ rule calculate_contamination:
 rule merge_vcfs:
     input:
         get_mergevcfs_input
-        # expand("vcfs/{patient}.{interval}.unfiltered.vcf", patient=patients, interval=get_intervals())
     output:
         vcf="vcfs/{patient}.unfiltered.vcf"
     params:
@@ -96,7 +95,6 @@ rule merge_vcfs:
 rule merge_stats:
     input:
         get_mergestats_input
-        # expand("vcfs/{patient}.{interval}.unfiltered.vcf.stats", patient=patients, interval=get_intervals())
     output:
         stats="vcfs/{patient}.unfiltered.vcf.stats"
     params:
@@ -115,11 +113,11 @@ rule filter_calls:
         stats="vcfs/{patient}.unfiltered.vcf.stats",
         f1r2model="vcfs/{patient}.read_orientation_model.tar.gz"
     output:
-        vcf="vcfs/{patient}.vcf",
-        idx="vcfs/{patient}.vcf.idx",
-        intermediate=temp("vcfs/{patient}.unselected.vcf"),
-        inter_stats="vcfs/{patient}.unselected.vcf.filteringStats.tsv",
-        inter_idx=temp("vcfs/{patient}.unselected.vcf.idx")
+        vcf="vcfs/filtered/{patient}.filtered.vcf",
+        idx="vcfs/filtered/{patient}.filtered.vcf.idx",
+        inter_stats="vcfs/filtered/{patient}.filtered.vcf.filteringStats.tsv",
+    params:
+        extra=""
     singularity: gatk_env
     shell:
         """
@@ -128,36 +126,30 @@ rule filter_calls:
             --stats {input.stats} \
             -ob-priors {input.f1r2model} \
             --min-reads-per-strand 1 \
-            -O {output.intermediate}
-        gatk SelectVariants -V {output.intermediate} -R {input.ref} -O {output.vcf} \
-            --exclude-filtered -OVI
+            -O {output.vcf}
         """
 
-# rule vep:
-#     input:
-#         vcf="vcfs/{patient}.filtered.vcf.gz",
-#         fasta=vep_fasta
-#     output:
-#         vcf="vcfs/{patient}.vcf",
-#         stats="vcfs/{patient}.vcf_summary.html"
-#     params:
-#         vep_dir = vep_dir,
-#         assembly=assembly
-#     conda:
-#         "../envs/annotation.yml"
-#     shell:
-#         """
-#         vep --cache --offline --hgvs --vcf --assembly {params.assembly} --dir {params.vep_dir}  \
-#             -i {input.vcf} -o {output.vcf} --fasta {input.fasta}
-#         """
+rule select_calls:
+    input:
+        vcf="vcfs/filtered/{patient}.filtered.vcf",
+        idx="vcfs/filtered/{patient}.filtered.vcf.idx",
+        ref=ref_fasta
+    output:
+        vcf="vcfs/{patient}.vcf",
+        idx="vcfs/{patient}.vcf.idx"
+    singularity: gatk_env
+    shell:
+        """
+        gatk SelectVariants -V {input.vcf} \
+            -R {input.ref} \
+            -O {output.vcf} \
+            --exclude-filtered \
+            -OVI
+        """
 
 rule vcf2maf:
     input:
         unpack(get_vcf2maf_input)
-        #vcf="vcfs/{patient}.vcf",
-        #fasta=ref_fasta,
-        #vep_dir=vep_dir,
-        #alt_isoforms=alternate_isoforms
     output:
         vep_vcf="vcfs/{patient}.vep.vcf",
         maf="mafs/{patient}.maf"
@@ -181,18 +173,7 @@ rule vcf2maf:
             {params.normalid} \
             {params.isoforms}
         """
-        # """
-        # vep_fp=`which vep`
-        # vep_path=$(dirname "$vep_fp")
-        # vcf2maf.pl --input-vcf {input.vcf} --output-maf {output.maf} \
-        #     --tumor-id {wildcards.patient}.tumor \
-        #     --normal-id {wildcards.patient}.normal \
-        #     --ref-fasta {input.fasta} --vep-data {input.vep_dir} \
-        #     --ncbi-build {params.assembly} \
-        #     --filter-vcf 0 --vep-path $vep_path \
-        #     --maf-center {params.center} \
-        #     {params.isoforms}
-        # """
+
 rule concat_mafs:
     input:
         expand("mafs/{patient}.maf", patient=patients)

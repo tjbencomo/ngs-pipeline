@@ -1,12 +1,12 @@
 {
     "__default__" :
     {
-        "account" : "tbencomo",
+        "account" : 
         "time" : "01:00:00",
         "ncpus" : 1,
         "mem" : "8G",
         "partition" : "normal",
-        "out" : "/scratch/users/tbencomo/logs/test-ngs-pipeline/slurm-{jobid}.out"
+        "out" : 
     },
     "make_gatk_regions" :
     {
@@ -22,43 +22,43 @@
     },
     "combine_fqs" :
     {
-        "time" : "2:00:00",
+        "time" : "4:00:00",
         "ncpus" : 1,
-        "mem" : "16G"
+        "mem" : "8G"
     },
     "bwa" :
     {
-        "time" : "3:00:00",
+        "time" : "4:00:00",
         "ncpus" : 8,
-        "mem" : "24G"
+        "mem" : "16G"
     },
     "merge_bams" :
     {
-        "time" : "2:00:00",
+        "time" : "3:00:00",
         "ncpus": 1,
-        "mem" : "16G"
+        "mem" : "8GG"
     },
     "markdups_sort" :
     {
-        "time" : "3:00:00",
+        "time" : "4:00:00",
         "ncpus" : 4,
         "mem" : "32G"
     },
     "bqsr" :
     {
-        "time" : "2:00:00",
+        "time" : "3:00:00",
         "ncpus" : 1,
-        "mem" : "24G"
+        "mem" : "16G"
     },
     "apply_bqsr" :
     {
-        "time" : "2:00:00",
+        "time" : "3:00:00",
         "ncpus" : 1,
-        "mem" : "24G"
+        "mem" : "16G"
     },
     "coverage" :
     {
-        "time" : "1:00:00",
+        "time" : "0:30:00",
         "ncpus" : 4,
         "mem" : "16G"
     },
@@ -82,8 +82,8 @@
     },
     "mutect2" :
     {
-        "time" : "12:00:00",
-        "mem" : "32G"
+        "time" : "10:00:00",
+        "mem" : "16G"
     },
     "pileup_summaries" :
     {
@@ -107,7 +107,7 @@
     {
         "time" : "00:20:00",
         "ncpus" : 1,
-        "mem" : "4G"
+        "mem" : "2G"
     },
     "vcf2maf" : 
     {
@@ -141,6 +141,6 @@
     "seq_depths" : 
     {
         "time" : "00:30:00",
-        "mem" : "16G"
+        "mem" : "8G"
     }
 }

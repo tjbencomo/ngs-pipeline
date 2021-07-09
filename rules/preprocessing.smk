@@ -45,7 +45,7 @@ rule bwa:
         ref=ref_fasta
     output:
         temp("bams/{patient}.{sample_type}.{readgroup}.aligned.bam")
-    threads: 12
+    threads: 8
     singularity: gatk_env
     shell:
         """
@@ -96,46 +96,6 @@ rule markdups_sort:
             --conf 'spark.local.dir={params.tmp}'
         """
 
-# rule mark_duplicates:
-#     input:
-#         get_dedup_input
-#         # "bams/{patient}.{sample_type}.merged.bam"
-#     output:
-#         bam=temp("bams/{patient}.{sample_type}.markdups.bam"),
-#         md5=temp("bams/{patient}.{sample_type}.markdups.bam.md5"),
-#         metrics="qc/gatk/{patient}_{sample_type}_dup_metrics.txt"
-#     params:
-#         input=lambda wildcards, input: " -I  ".join(input),
-#         tmp=tmp_dir
-#     singularity: gatk_env
-#     shell:
-#         """
-#         gatk MarkDuplicates -I {params.input} -O {output.bam} -M {output.metrics} \
-#             --CREATE_MD5_FILE true --ASSUME_SORT_ORDER "queryname" \
-#             --TMP_DIR {params.tmp}
-#         """
-
-# rule sort_fix_tags:
-#     input:
-#         bam="bams/{patient}.{sample_type}.markdups.bam",
-#         ref=ref_fasta
-#     output:
-#         bam=temp("bams/{patient}.{sample_type}.sorted.bam"),
-#         bai=temp("bams/{patient}.{sample_type}.sorted.bai"),
-#         md5=temp("bams/{patient}.{sample_type}.sorted.bam.md5")
-#     params:
-#         tmp=tmp_dir
-#     singularity: gatk_env
-#     shell:
-#         """
-
-#         gatk SortSam -I {input.bam} -O /dev/stdout --SORT_ORDER "coordinate" \
-#             --CREATE_INDEX false --CREATE_MD5_FILE false --TMP_DIR {params.tmp} \
-#         | \
-#         gatk SetNmMdAndUqTags -I /dev/stdin -O {output.bam} -R {input.ref} \
-#             --CREATE_INDEX true --CREATE_MD5_FILE true --TMP_DIR {params.tmp}
-#         """
-
 rule bqsr:
     input:
         bam="bams/{patient}.{sample_type}.sorted.bam",
@@ -175,35 +135,9 @@ rule apply_bqsr:
             --tmp-dir {params.tmp}
         """
 
-# rule bqsr:
-#     input:
-#         bam="bams/{patient}.{sample_type}.sorted.bam",
-#         known=known_sites,
-#         ref=ref_fasta
-#     output:
-#         bam="bams/{patient}.{sample_type}.bam",
-#         bai="bams/{patient}.{sample_type}.bai",
-#         md5="bams/{patient}.{sample_type}.bam.md5",
-#         recal="qc/{patient}.{sample_type}.recal_data.table"
-#     params:
-#         ks=['--known-sites ' + s for s in known_sites],
-#         tmp=tmp_dir
-#     singularity: gatk_env
-#     shell:
-#         """
-#         gatk BaseRecalibrator -I {input.bam} -R {input.ref} -O {output.recal} \
-#             {params.ks} --tmp-dir {params.tmp}
-#         gatk ApplyBQSR -I {input.bam} -R {input.ref} -O {output.bam} -bqsr {output.recal} \
-#             --add-output-sam-program-record \
-#             --create-output-bam-md5 \
-#             --tmp-dir {params.tmp}
-#         """
-
 rule coverage:
     input:
         unpack(get_coverage_input)
-        # bam="bams/{patient}.{sample_type}.bam",
-        # exons=capture_bed
     output:
         "qc/{patient}_{sample_type}.mosdepth.region.dist.txt",
         "qc/{patient}_{sample_type}.regions.bed.gz",
