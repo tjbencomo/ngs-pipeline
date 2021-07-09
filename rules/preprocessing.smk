@@ -211,7 +211,7 @@ rule coverage:
         "qc/{patient}_{sample_type}.mosdepth.summary.txt"
     threads: 4
     params:
-        by=lambda wildcards, input: '500' if seqtype == 'WGS' else input.capture
+        by=lambda wildcards, input: '500' if seqtype == 'WGS' else input.regions
     singularity: mosdepth_env
     shell:
         """
