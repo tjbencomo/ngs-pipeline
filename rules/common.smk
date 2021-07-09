@@ -14,6 +14,8 @@ from snakemake.utils import min_version
 min_version("5.9.1")
 
 configfile: "config.yaml"
+
+# Patient/Sample Info
 validate(config, schema = "../schemas/config.schema.yaml")
 patients = pd.read_csv(config['patients'])['patient']
 units = pd.read_csv(config['units'], dtype=str).set_index(["patient", "sample", "readgroup"], drop=False)
@@ -21,35 +23,36 @@ validate(units, schema = "../schemas/units.schema.yaml")
 units = units.sort_index()
 seqtype= config['sequencing_type']
 
+
+# References
 ref_dir = config['ref_dir']
 ref_fasta = os.path.join(ref_dir, config['ref_fasta'])
 ref_dict = ref_fasta.replace('.fasta', '.dict') #used for BedToIntervals
 known_sites = config['known_sites'].replace(' ', '').split(',')
 known_sites = [os.path.join(ref_dir, s) for s in known_sites]
-capture_bed = config['capture_targets']
 germline_resource = config['germline_resource']
 contamination_resource = config['contamination_resource']
+file_suffixes= ['amb', 'ann', 'bwt', 'pac', 'sa']
 
+# Mutect2
 num_workers = config['num_workers']
-
+mutect_flags = config['mutect2_flags']
+filter_flags = config['filter_flags']
+tumor_only = config['tumor_only']
 stringent_filtering = config['stringent_filtering']
 
-tmp_dir = config['tmp_dir']
-if tmp_dir == 'None':
-    tmp_dir = 'null'
+if mutect_flags == 'None':
+    mutect_flags = ''
+if filter_flags == 'None':
+    filter_flags = ''
 
-vep_dir = config['vep_dir']
-assembly = config['assembly_version']
-center = config['center_name']
-alternate_isoforms = config['alternate_isoforms']
-if config['alternate_isoforms'] == 'None':
-    alternate_isoforms = ''
-    isoforms_param = ''
+if tumor_only:
+    sample_types = ['tumor']
 else:
-    isoforms_param = '--custom-enst ' + alternate_isoforms
+    sample_types = ['normal', 'tumor']
 
-tumor_only = config['tumor_only']
 
+# PON
 use_pon = config['use_pon']
 if use_pon is False:
     pon_vcf = 'null'
@@ -61,18 +64,28 @@ else :
         build_pon = False
         pon_vcf = config['pon_vcf']
 
+# TMP Directory
+tmp_dir = config['tmp_dir']
+if tmp_dir == 'None':
+    tmp_dir = 'null'
+
+# Annotations
+vep_dir = config['vep_dir']
+assembly = config['assembly_version']
+center = config['center_name']
+alternate_isoforms = config['alternate_isoforms']
+if config['alternate_isoforms'] == 'None':
+    alternate_isoforms = ''
+    isoforms_param = ''
+else:
+    isoforms_param = '--custom-enst ' + alternate_isoforms
+
+# Genomic Regions
 regions_bed = config['genomic_regions']
 regions_gatk = os.path.basename(regions_bed).replace('.bed', '.interval_list')
 regions_gatk = os.path.join('interval-files', regions_gatk)
 
-if tumor_only:
-    sample_types = ['tumor']
-else:
-    sample_types = ['normal', 'tumor']
-
-file_suffixes= ['amb', 'ann', 'bwt', 'pac', 'sa']
-
-# Load container info
+# Containers
 gatk_env = config['gatk_container']
 multiqc_env = config['multiqc_container']
 mosdepth_env = config['mosdepth_container']

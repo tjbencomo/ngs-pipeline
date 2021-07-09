@@ -11,8 +11,7 @@ units: units_test.csv
 sequencing_type: WES
 
 # Genomic Regions
-# Uncompressed BED (.bed) file with regions for variant calling
-# This file should be uncompressed. 
+# Uncompressed BED (.bed) file with regions for variant calling. Must be specified!
 # For WES data, coverage is evaluated based on reads in these regions
 # For WGS data, coverage is evaluated across the genome in 500 bp windows
 genomic_regions: /home/groups/carilee/refs/coverage/agilent-exonsV5/S04380110_Covered.bed
@@ -25,8 +24,6 @@ ref_fasta: Homo_sapiens_assembly38.fasta
 # Comma separated names of VCF files with known mutations. 
 # Should all be in the reference directory
 known_sites: dbsnp_146.hg38.vcf.gz, resources-broad-hg38-v0-Homo_sapiens_assembly38.known_indels.vcf.gz, 1000G_phase1.snps.high_confidence.hg38.vcf.gz
-# BED file with exome regions that were targeted for capture. Doesn't have to be in ref_dir
-capture_targets: /home/groups/carilee/refs/coverage/agilent-exonsV5/S04380110_Covered.bed
 # AF only VCF with common allele frequencies - use gnomAD file
 germline_resource: /home/groups/carilee/refs/gnomAD/af-only-gnomad.hg38.vcf.gz
 # Biallelic variants only VCF with AF data - use EXAC file
@@ -35,12 +32,27 @@ contamination_resource: /home/groups/carilee/refs/gnomAD/small_exac_common_3.hg3
 # GATK TMP directory
 # Large files may overwhelm the default tmp directory (/tmp)
 # Set this variable to an alternative filepath that has larger storage (ie $SCRATCH) if
-# GATK is running out of storage during a run
+# GATK is running out of storage during a run. Ideally this is fast storage
 tmp_dir: /scratch/users/tbencomo/tmp/
 
-## Parallelism
+
+# Mutect2 Settings
 # Number of Mutect2 workers per sample
 num_workers: 1
+# Variant calling without matched normal
+# Only advised as a last resort - try to get matched normal samples
+tumor_only: false
+# Additional flags for Mutect2
+mutect2_flags: None
+# Additional flags for FilterMutectCalls
+filter_flags: None
+
+# Panel of Normal (PON)
+# Use PON with Mutect2 for variant calling
+use_pon: true
+# Filepath for PON. To create a new PON from all the normal samples, specify as None
+pon_vcf: /home/groups/carilee/refs/broad-pons/1000g_pon.hg38.vcf.gz
+
 
 # Apply additional thresholds to filter variants
 # When set to true, requires each SNV has a minimum of
@@ -59,20 +71,6 @@ assembly_version: GRCh38
 center_name: Lee Lab
 # Alternate Isoforms For vcf2maf Selection. Set as None to use Ensembl defaults
 alternate_isoforms: None
-
-
-# Mutect2 Mode
-# Allows somatic variant calling without matched normal
-# Only advised as a last resort - try to get matched normal samples
-tumor_only: false
-
-# Panel of Normal (PON)
-# Use PON with Mutect2 for variant calling
-use_pon: true
-# Filepath for PON. To create a new PON from all the normal samples, specify as None
-pon_vcf: /home/groups/carilee/refs/broad-pons/1000g_pon.hg38.vcf.gz
-# GATK, Picard, or BED style interval file with intervals to use for Panel of Normal Creation
-interval_file: /home/groups/carilee/refs/hg38/wgs_calling_regions.hg38.interval_list
 
 ## Singularity Containers
 ## This specifies the container to use for various steps in the pipeline
