@@ -1,70 +1,70 @@
 {
     "__default__" :
     {
-        "account" : 
-        "time" : "01:00:00",
+        "account" : "tbencomo",
+        "time" : "00:30:00",
         "ncpus" : 1,
         "mem" : "8G",
         "partition" : "normal",
-        "out" : 
+        "out" : "/home/groups/carilee/software/ngs-pipeline/slurm-logs/slurm-{jobid}.out"
     },
     "make_gatk_regions" :
     {
-        "time" : "00:10:00",
+        "time" : "00:05:00",
         "ncpus" : 1,
-        "mem" : "2G"
+        "mem" : "1G"
     },
     "split_intervals" :
     {
-        "time" : "00:10:00",
+        "time" : "00:05:00",
         "ncpus" : 1,
-        "mem" : "2G"
+        "mem" : "1G"
     },
     "combine_fqs" :
     {
-        "time" : "4:00:00",
+        "time" : "00:30:00",
         "ncpus" : 1,
         "mem" : "8G"
     },
     "bwa" :
     {
-        "time" : "4:00:00",
-        "ncpus" : 8,
+        "time" : "2:00:00",
+        "ncpus" : 4,
         "mem" : "16G"
     },
     "merge_bams" :
     {
-        "time" : "3:00:00",
+        "time" : "00:15:00",
         "ncpus": 1,
-        "mem" : "8GG"
+        "mem" : "16G"
     },
     "markdups_sort" :
     {
-        "time" : "4:00:00",
+        "time" : "1:00:00",
         "ncpus" : 4,
         "mem" : "32G"
     },
     "bqsr" :
     {
-        "time" : "3:00:00",
+        "time" : "5:00:00",
         "ncpus" : 1,
         "mem" : "16G"
     },
     "apply_bqsr" :
     {
-        "time" : "3:00:00",
+        "time" : "1:20:00",
         "ncpus" : 1,
         "mem" : "16G"
     },
     "coverage" :
     {
-        "time" : "0:30:00",
+        "time" : "0:10:00",
         "ncpus" : 4,
-        "mem" : "16G"
+        "mem" : "8G"
     },
     "stats" :
     {
-        "time" : "00:45:00",
+        "time" : "00:15:00",
         "ncpus" : 1,
         "mem" : "16G"
     },
@@ -82,24 +82,24 @@
     },
     "mutect2" :
     {
-        "time" : "10:00:00",
+        "time" : "00:30:00",
         "mem" : "16G"
     },
     "pileup_summaries" :
     {
-        "time" : "00:15:00",
+        "time" : "00:20:00",
         "ncpus" : 1,
         "mem" : "8G"
     },
     "calculate_contamination" :
     {
-        "time" : "00:15:00",
+        "time" : "00:20:00",
         "ncpus" : 1,
         "mem" : "8G"
     },
     "filter_calls" :
     {
-        "time" : "00:15:00",
+        "time" : "00:20:00",
         "ncpus" : 1,
         "mem" : "8G"
     },
@@ -111,13 +111,13 @@
     },
     "vcf2maf" : 
     {
-        "time" : "01:00:00",
+        "time" : "00:30:00",
         "ncpus" : 1,
         "mem" : "16G"
     },
     "concat_mafs" : 
     {
-        "time" : "01:00:00",
+        "time" : "00:20:00",
         "ncpus" : 1,
         "mem" : "8G"
     },
@@ -128,19 +128,19 @@
     },
     "gather_variants" :
     {
-        "time" : "04:00:00",
+        "time" : "02:00:00",
         "ncpus" : 1,
         "mem" : "16G"
     },
     "create_pon" :
     {
-        "time" : "04:00:00",
+        "time" : "02:00:00",
         "ncpus" : 1,
         "mem" : "16G"
     },
     "seq_depths" : 
     {
-        "time" : "00:30:00",
+        "time" : "00:20:00",
         "mem" : "8G"
     }
 }

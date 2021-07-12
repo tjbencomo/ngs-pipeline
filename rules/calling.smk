@@ -16,13 +16,13 @@ rule mutect2:
         vcf=temp("vcfs/{patient}.{interval}.unfiltered.vcf"),
         idx=temp("vcfs/{patient}.{interval}.unfiltered.vcf.idx"),
         stats=temp("vcfs/{patient}.{interval}.unfiltered.vcf.stats"),
-        f1r2tar="vcfs/{patient}.{interval}.f1r2.tar.gz"
+        f1r2tar=temp("vcfs/{patient}.{interval}.f1r2.tar.gz")
     params:
         tumor="{patient}.tumor",
         normalname= ' ' if tumor_only else '-normal ' + "{patient}.normal",
         normal_input=lambda wildcards, input: ' ' if tumor_only else "-I " + input.normal,
         pon="--panel-of-normals " + pon_vcf,
-        extra=""
+        extra=mutect_flags
     singularity: gatk_env
     shell:
         """
@@ -39,8 +39,6 @@ rule mutect2:
 rule orientation_bias:
     input:
         get_orientationbias_input
-        # expand("vcfs/{patient}.{interval}.f1r2.tar.gz", patient=patients, interval=get_intervals())
-        # "vcfs/{patient}.f1r2.tar.gz"
     output:
         "vcfs/{patient}.read_orientation_model.tar.gz"
     params:
@@ -117,7 +115,7 @@ rule filter_calls:
         idx="vcfs/filtered/{patient}.filtered.vcf.idx",
         inter_stats="vcfs/filtered/{patient}.filtered.vcf.filteringStats.tsv",
     params:
-        extra=""
+        extra=filter_flags
     singularity: gatk_env
     shell:
         """
@@ -125,8 +123,8 @@ rule filter_calls:
             --contamination-table {input.contamination} \
             --stats {input.stats} \
             -ob-priors {input.f1r2model} \
-            --min-reads-per-strand 1 \
-            -O {output.vcf}
+            -O {output.vcf} \
+            {params.extra}
         """
 
 rule select_calls:

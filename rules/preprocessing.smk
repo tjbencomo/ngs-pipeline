@@ -69,8 +69,12 @@ rule merge_bams:
     singularity: gatk_env
     shell:
         """
-        gatk MergeBamAlignment -UNMAPPED {input.unaligned} -ALIGNED {input.aligned} \
-            -R {input.ref} -O {output} \
+        gatk MergeBamAlignment \
+            -R {input.ref} \
+            -UNMAPPED {input.unaligned} \
+            -ALIGNED {input.aligned} \
+            -O {output} \
+            --SORT_ORDER queryname \
             --TMP_DIR {params.tmp}
         """
 
@@ -196,12 +200,12 @@ rule multiqc:
 
 rule seq_depths:
     input:
-        expand("qc/{patient}_{sample_type}.regions.bed.gz", patient=patients, sample_type=sample_types)
+        expand("qc/{patient}_{sample_type}.mosdepth.summary.txt", patient=patients, sample_type=sample_types)
     output:
         "qc/depths.csv"
     singularity: eda_env
     script:
-        "../scripts/count_depth.py"
+        "../scripts/gather_depths.py"
 
 rule plot_depths:
     input:

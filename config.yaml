@@ -1,7 +1,7 @@
 # CSV file with single column, patient, with every patient ID
-patients: patients_test.csv
+patients: patients.csv
 # CSV file with info on each sample/read group
-units: units_test.csv
+units: units.csv
 
 # Sequencing Type
 # For whole exome, specify WES
@@ -38,14 +38,14 @@ tmp_dir: /scratch/users/tbencomo/tmp/
 
 # Mutect2 Settings
 # Number of Mutect2 workers per sample
-num_workers: 1
+num_workers: 40
 # Variant calling without matched normal
 # Only advised as a last resort - try to get matched normal samples
 tumor_only: false
 # Additional flags for Mutect2
 mutect2_flags: None
 # Additional flags for FilterMutectCalls
-filter_flags: None
+filter_flags: --min-reads-per-strand 1
 
 # Panel of Normal (PON)
 # Use PON with Mutect2 for variant calling

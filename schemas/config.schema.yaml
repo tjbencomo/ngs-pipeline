@@ -20,9 +20,6 @@ properties:
     known_sites:
         type: string
         description: comma separated list of filenames containing known variants. These files should be in ref_dir
-    capture_targets:
-        type: string
-        description: filepath of BED file with exome intervals for coverage evaluation
     germline_resource:
         type: string
         description: filepath to gnomAD allele frequency only VCF file - can be downloaded from GATK Resource Bundle
@@ -44,9 +41,6 @@ properties:
     pon_vcf:
         type: string
         description: filepath for PON VCF. To build PON from normal samples, set as None
-    interval_file:
-        type: string
-        description: interval file for regions to include when building PON
 
 required:
     - patients
@@ -54,7 +48,6 @@ required:
     - ref_dir
     - ref_fasta
     - known_sites
-    - capture_targets
     - germline_resource
     - contamination_resource
     - vep_dir
@@ -62,4 +55,3 @@ required:
     - center_name
     - use_pon
     - pon_vcf
-    - interval_file

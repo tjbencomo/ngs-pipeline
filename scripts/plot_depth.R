@@ -6,10 +6,10 @@ library(ggplot2)
 
 df <- read_csv(snakemake@input[[1]])
 df <- df %>%
-    mutate(type = factor(type, levels = c("normal", "tumor")))
+    mutate(sample_type = factor(sample_type, levels = c("normal", "tumor")))
 p <- df %>%
-    ggplot(aes(type, mean_depth)) +
-    geom_boxplot(aes(fill = type)) +
+    ggplot(aes(sample_type, mean)) +
+    geom_boxplot(aes(fill = sample_type)) +
     labs(x = "", y = "Average Depth") +
     guides(fill = guide_legend(title="")) +
     ggtitle("Sequencing Depths")
