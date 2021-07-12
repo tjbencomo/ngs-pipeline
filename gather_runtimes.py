@@ -1,5 +1,5 @@
 """
-Parse log files to determine average runtime for each pipeline step
+Parse log files to determine max runtime for each pipeline step
 Instructions:
 python gather_runtimes.py [log directory]
 """
