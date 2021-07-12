@@ -4,3 +4,7 @@
 .fq.gz
 .bam.bai
 .bai
+.cache
+.conda
+.java
+.snakemake
