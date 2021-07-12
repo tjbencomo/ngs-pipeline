@@ -8,3 +8,4 @@
 .conda
 .java
 .snakemake
+.oracle_jre_usage
