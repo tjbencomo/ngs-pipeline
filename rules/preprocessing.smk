@@ -18,7 +18,8 @@ rule combine_fqs:
     singularity: gatk_env
     shell:
         """
-        gatk FastqToSam -F1 {input.r1} -F2 {input.r2} -O {output} \
+        gatk FastqToSam -F1 {input.r1} -F2 {input.r2} \
+            -O {output} \
             -SM {wildcards.patient}.{wildcards.sample_type} \
             -RG {wildcards.patient}.{wildcards.sample_type}.{wildcards.readgroup} \
             --TMP_DIR {params.tmp} \
@@ -31,7 +32,7 @@ rule bwa_index:
         ref_fasta
     output:
         [f"{ref_fasta}.{suffix}" for suffix in file_suffixes]
-    singularity: bwa_env
+    singularity: gatk_env 
     shell:
         """
         bwa index {input}
@@ -44,16 +45,16 @@ rule bwa:
         ref=ref_fasta
     output:
         temp("bams/{patient}.{sample_type}.{readgroup}.aligned.bam")
-    threads: 12
-    singularity: bwa_env
+    threads: 8
+    singularity: gatk_env
     shell:
         """
         gatk SamToFastq -I {input.bam} -F /dev/stdout -INTER true -NON_PF true \
         | \
-        bwa mem -K 100000000 -p -v 3 -t {threads} -Y \
+        bwa mem -p -v 3 -t {threads} -T 0 \
             {input.ref} /dev/stdin - 2> >(tee {log} >&2) \
         | \
-        samtools view -1 - > {output}
+        samtools view -Shb -o {output}
         """
 
 rule merge_bams:
@@ -68,51 +69,35 @@ rule merge_bams:
     singularity: gatk_env
     shell:
         """
-        gatk MergeBamAlignment -UNMAPPED {input.unaligned} -ALIGNED {input.aligned} \
-            -R {input.ref} -O {output} \
+        gatk MergeBamAlignment \
+            -R {input.ref} \
+            -UNMAPPED {input.unaligned} \
+            -ALIGNED {input.aligned} \
+            -O {output} \
+            --SORT_ORDER queryname \
             --TMP_DIR {params.tmp}
         """
 
-rule mark_duplicates:
+rule markdups_sort:
     input:
         get_dedup_input
-        # "bams/{patient}.{sample_type}.merged.bam"
-    output:
-        bam=temp("bams/{patient}.{sample_type}.markdups.bam"),
-        md5=temp("bams/{patient}.{sample_type}.markdups.bam.md5"),
-        metrics="qc/gatk/{patient}_{sample_type}_dup_metrics.txt"
-    params:
-        input=lambda wildcards, input: " -I  ".join(input),
-        tmp=tmp_dir
-    conda:
-        "../envs/gatk.yml"
-    shell:
-        """
-        gatk MarkDuplicates -I {params.input} -O {output.bam} -M {output.metrics} \
-            --CREATE_MD5_FILE true --ASSUME_SORT_ORDER "queryname" \
-            --TMP_DIR {params.tmp}
-        """
-
-rule sort_fix_tags:
-    input:
-        bam="bams/{patient}.{sample_type}.markdups.bam",
-        ref=ref_fasta
     output:
         bam=temp("bams/{patient}.{sample_type}.sorted.bam"),
-        bai=temp("bams/{patient}.{sample_type}.sorted.bai"),
-        md5=temp("bams/{patient}.{sample_type}.sorted.bam.md5")
+        bai=temp("bams/{patient}.{sample_type}.sorted.bam.bai"),
+        sbi=temp("bams/{patient}.{sample_type}.sorted.bam.sbi")
     params:
+        inbams=lambda wildcards, input: " -I  ".join(input),
         tmp=tmp_dir
-    conda:
-        "../envs/gatk.yml"
+    threads: 4
+    singularity: gatk_env
     shell:
         """
-
-        gatk SortSam -I {input.bam} -O /dev/stdout --SORT_ORDER "coordinate" \
-            --CREATE_INDEX false --CREATE_MD5_FILE false --TMP_DIR {params.tmp} \
-        | \
-        gatk SetNmMdAndUqTags -I /dev/stdin -O {output.bam} -R {input.ref} \
-            --CREATE_INDEX true --CREATE_MD5_FILE true --TMP_DIR {params.tmp}
+        gatk MarkDuplicatesSpark \
+            -I {params.inbams} \
+            -O {output.bam} \
+            --tmp-dir {params.tmp} \
+            --conf 'spark.executor.cores={threads}' \
+            --conf 'spark.local.dir={params.tmp}'
         """
 
 rule bqsr:
@@ -121,30 +106,42 @@ rule bqsr:
         known=known_sites,
         ref=ref_fasta
     output:
-        bam="bams/{patient}.{sample_type}.bam",
-        bai="bams/{patient}.{sample_type}.bai",
-        md5="bams/{patient}.{sample_type}.bam.md5",
         recal="qc/{patient}.{sample_type}.recal_data.table"
     params:
         ks=['--known-sites ' + s for s in known_sites],
         tmp=tmp_dir
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk BaseRecalibrator -I {input.bam} -R {input.ref} -O {output.recal} \
             {params.ks} --tmp-dir {params.tmp}
-        gatk ApplyBQSR -I {input.bam} -R {input.ref} -O {output.bam} -bqsr {output.recal} \
+        """
+
+rule apply_bqsr:
+    input:
+        bam="bams/{patient}.{sample_type}.sorted.bam",
+        recal="qc/{patient}.{sample_type}.recal_data.table",
+        ref=ref_fasta
+    output:
+        bam="bams/{patient}.{sample_type}.bam",
+        bai="bams/{patient}.{sample_type}.bai"
+    params:
+        tmp=tmp_dir
+    singularity: gatk_env
+    shell:
+        """
+        gatk ApplyBQSR \
+            -I {input.bam} \
+            -R {input.ref} \
+            -O {output.bam} \
+            -bqsr {input.recal} \
             --add-output-sam-program-record \
-            --create-output-bam-md5 \
             --tmp-dir {params.tmp}
         """
 
 rule coverage:
     input:
         unpack(get_coverage_input)
-        # bam="bams/{patient}.{sample_type}.bam",
-        # exons=capture_bed
     output:
         "qc/{patient}_{sample_type}.mosdepth.region.dist.txt",
         "qc/{patient}_{sample_type}.regions.bed.gz",
@@ -152,9 +149,8 @@ rule coverage:
         "qc/{patient}_{sample_type}.mosdepth.summary.txt"
     threads: 4
     params:
-        by=lambda wildcards, input: '500' if isWGS(wildcards) else input.capture
-    conda:
-        "../envs/qc.yml"
+        by=lambda wildcards, input: '500' if seqtype == 'WGS' else input.regions
+    singularity: mosdepth_env
     shell:
         """
         mosdepth --by {params.by} -t {threads} qc/{wildcards.patient}_{wildcards.sample_type} \
@@ -166,8 +162,7 @@ rule stats:
         "bams/{patient}.{sample_type}.bam"
     output:
         "qc/{patient}.{sample_type}.flagstat"
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         samtools flagstat {input} > {output}
@@ -177,61 +172,77 @@ rule fastqc:
     input:
         "bams/{patient}.{sample_type}.bam"
     output:
-        html="qc/fastqc/{patient}_{sample_type}.html",
-        zip="qc/fastqc/{patient}_{sample_type}_fastqc.zip"
-    conda:
-        "../envs/qc.yml"
-    wrapper:
-        "0.45.0/bio/fastqc"
+        html="qc/fastqc/{patient}.{sample_type}_fastqc.html",
+        zipdata="qc/fastqc/{patient}.{sample_type}_fastqc.zip"
+    singularity: fastqc_env
+    shell:
+        """
+        tmpdir=qc/fastqc/.{wildcards.patient}-{wildcards.sample_type} 
+        mkdir $tmpdir 
+        fastqc --outdir $tmpdir {input} 
+        mv $tmpdir/{wildcards.patient}.{wildcards.sample_type}_fastqc.html {output.html} 
+        mv $tmpdir/{wildcards.patient}.{wildcards.sample_type}_fastqc.zip {output.zipdata} 
+        rm -r $tmpdir
+        """
 
 rule multiqc:
     input:
-        expand("qc/fastqc/{patient}_{sample_type}_fastqc.zip", patient=patients, sample_type=sample_types),
+        expand("qc/fastqc/{patient}.{sample_type}_fastqc.zip", patient=patients, sample_type=sample_types),
         expand("qc/{patient}_{sample_type}.mosdepth.region.dist.txt", patient=patients, sample_type=sample_types),
         expand("qc/{patient}.{sample_type}.flagstat", patient=patients, sample_type=sample_types)
     output:
         "qc/multiqc_report.html"
     log:
         "logs/multiqc.log"
-    conda:
-        "../envs/qc.yml"
+    singularity: multiqc_env
     wrapper:
         "0.50.4/bio/multiqc"
 
 rule seq_depths:
     input:
-        expand("qc/{patient}_{sample_type}.regions.bed.gz", patient=patients, sample_type=sample_types)
+        expand("qc/{patient}_{sample_type}.mosdepth.summary.txt", patient=patients, sample_type=sample_types)
     output:
         "qc/depths.csv"
-    conda:
-        "../envs/pandas.yml"
+    singularity: eda_env
     script:
-        "../scripts/count_depth.py"
+        "../scripts/gather_depths.py"
 
 rule plot_depths:
     input:
         "qc/depths.csv"
     output:
         "qc/depths.svg"
-    conda:
-        "../envs/depths.yml"
+    singularity: eda_env
     script:
         "../scripts/plot_depth.R"
 
 rule split_intervals:
     input:
         ref=ref_fasta,
-        intervals=genome_intervals
+        intervals=regions_gatk
     output:
         interval_files
     params:
         N=num_workers,
         d="interval-files"
-    conda:
-        "../envs/gatk.yml"
+    singularity: gatk_env
     shell:
         """
         gatk SplitIntervals -R {input.ref} -L {input.intervals} \
             --scatter-count {params.N} -O {params.d} \
             --subdivision-mode BALANCING_WITHOUT_INTERVAL_SUBDIVISION
+        """
+rule make_gatk_regions:
+    input:
+        bed=regions_bed,
+        d=ref_dict
+    output:
+        intlist=regions_gatk
+    singularity: gatk_env
+    shell:
+        """
+        gatk BedToIntervalList \
+            -I {input.bed} \
+            -SD {input.d} \
+            -O {output}
         """
