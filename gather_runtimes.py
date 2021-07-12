@@ -1,9 +1,12 @@
 """
 Parse log files to determine average runtime for each pipeline step
+Instructions:
+python gather_runtimes.py [log directory]
 """
 
 import os
 import re
+import sys
 from datetime import datetime as dt
 import pandas as pd
 
@@ -26,10 +29,10 @@ def parse_log(fp):
     return rule, d.total_seconds()
 
 def main():
-    logdir = 'slurm-logs'
+    logdir = sys.argv[1]
+    if not os.path.isdir(logdir):
+        raise ValueError(f"{logdir} doesn't exist!")
     files = os.listdir(logdir)
-    # files = ['slurm-31.out']
-    # print(files)
     print(f"Found {len(files)} log files")
     rules = []
     seconds = []
@@ -41,7 +44,6 @@ def main():
     df = pd.DataFrame({'rule' : rules, 'seconds' : seconds})
     seconds_per_hour = 60 ** 2
     df['hours'] = df['seconds'] / seconds_per_hour
-    print(df.head())
     mean_times = df.groupby('rule').agg({'seconds' : 'max'})
     mean_times['hours'] = mean_times['seconds'] / seconds_per_hour
     mean_times = mean_times.sort_values(by=['hours'])
