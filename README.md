@@ -101,8 +101,7 @@ snakemake --cluster-config cluster.json --cluster 'sbatch $(./parseJobID.sh {dep
 
 ## Deviations from Broad Pipeline
 `ngs-pipeline` differs from the Broad's Somatic Variant pipeline in the following ways:
-* `FilterMutectCalls` is run with additional flags. All variants must have 1 read from each direction to be included in the final callset. 
-This can be disabled in `rules/calling.smk`
+* By default `FilterMutectCalls` is run with additional flags. This can be changed in `config.yaml`. The default configuration requires all variants must have 1 read from each direction to be included in the final callset. 
 * We provide the option for more stringent variant filtering criteria with the `stringent_filtering` setting in `config.yaml`. 
 This is turned off by default
 
