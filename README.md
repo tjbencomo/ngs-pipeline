@@ -1,5 +1,5 @@
 # ngs-pipeline
-Somatic variant calling pipeline for whole exome and whole genome sequencing (WES & WGS). The pipeline uses Mutect2 to identify variants and mostly follows GATK Best Practices. Support for Stanford's Sherlock computing cluster is supported through SLURM cluster execution capabilities. 
+Somatic variant calling pipeline for whole exome and whole genome sequencing (WES & WGS). The pipeline uses Mutect2 to identify variants and mostly follows GATK Best Practices. SLURM execution functionality allows the workflow to run on Stanford's Sherlock computing cluster.
 
 ## Author
 * Tomas Bencomo ([https://tjbencomo.github.io](https://tjbencomo.github.io))
