@@ -27,6 +27,10 @@ The pipeline takes paired end (PE) FASTQ files as input. Samples can be normal-t
 tumor-only individual sample. Samples can be divided into multiple read groups (see `units.csv`) or one pair
 of FASTQ files per sample.
 
+You'll also need a BED file with a list of target regions. For WES this is usually the capture kit regions. For WGS
+this can be the entire genome or a whitelist file that excludes problematic regions. A WGS calling region file is available
+in the GATK Resource Bundle (it will need to be converted from interval_list format to BED format).
+
 ## Software
 Snakemake is required to run the pipeline. It is recommended users have Singularity installed to
 take advantage of preconfigured Docker containers for full reproducibility. If you
