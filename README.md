@@ -1,5 +1,5 @@
 # ngs-pipeline
-NGS pipeline for calling somatic variants from paired end (PE) whole exome sequencing (WES) and whole genome sequencing (WGS) data based on GATK Best Practices and Mutect2
+Somatic variant calling pipeline for whole exome and whole genome sequencing (WES & WGS). The pipeline uses Mutect2 to identify variants and mostly follows GATK Best Practices. Support for Stanford's Sherlock computing cluster is supported through SLURM cluster execution capabilities. 
 
 ## Author
 * Tomas Bencomo ([https://tjbencomo.github.io](https://tjbencomo.github.io))
@@ -9,53 +9,61 @@ If you encounter problems using the pipeline, find a bug, or would like to reque
 please file an [issue](https://github.com/tjbencomo/ngs-pipeline/issues).
 
 ## Prerequisites
-Before you start setting up the pipeline, make sure you have your reference genome assembled.
-The GRCh38 (hg38) genome is available on the Broad's
-GATK [website](https://software.broadinstitute.org/gatk/download/bundle).
+## References
+You'll need a reference genome. The GRCh38 (hg38) genome is available on the Broad's
+GATK [website](https://gatk.broadinstitute.org/hc/en-us/articles/360035890811-Resource-bundle).
 
 You'll also need the `cache` files for 
 [Variant Annotation Predictor (VEP)](https://github.com/Ensembl/ensembl-vep).
 Follow the tutorial 
 [here](https://uswest.ensembl.org/info/docs/tools/vep/script/vep_cache.html#cache) 
-to download the data files. `ngs-pipeline` uses VEP 99 so install the cache for version 99.
-The VEP version can be changed by modifying `envs/annotation.yml`.
-Don't forget to index the files before running the pipeline.
-## Setup
+to download the data files. 
+By default, the pipeline uses a docker container with VEP v104 and VCF2MAF for variant annotation. 
+It is suggested you use v104 cache files. You can use your own version of VEP/VCF2MAF by
+modifying the `vep_env` field in `config.yaml`.
 
-1. Create a new Github repository using this workflow as a template with the `Use this template` button
-at the top of this page. This will allow you to track any changes made to the analysis with `git`
-2. Clone the repository to the machine where you want to perform data analysis
+## Input Files
+The pipeline takes paired end (PE) FASTQ files as input. Samples can be normal-tumor pairs or
+tumor-only individual sample. Samples can be divided into multiple read groups (see `units.csv`) or one pair
+of FASTQ files per sample.
+
+## Software
+Snakemake is required to run the pipeline. It is recommended users have Singularity installed to
+take advantage of preconfigured Docker containers for full reproducibility. If you
+don't want to use Singularity, you should download all required software (see workflow files) and
+ensure they are in your path.
+
+## Setup
+1. Clone this repository or create a new repository using this workflow as a template
 3. Edit `patients.csv` and `units.csv` with the details for your analysis.
 See the `schemas/` directory for details about each file.
 4. Configure `config.yml`. See `schemas/config.schema.yaml` for info about each required field. 
-There should be normal and tumor samples for each patient. 
-Each patient should have at least two rows in `units`, one normal row and one tumor row. 
 Multiplexed samples should be differentiated with the `readgroup` column.
 Sequencing data must be paired, so both `fq1` and `fq2` are required.
 
 ## Usage
-After finishing the setup and enabling the `conda` environment, inside the analysis directory with
+After finishing the setup, inside the repo's base  directory with
 `Snakefile` do a dry run to check for errors
 ```
 snakemake -n
 ```
-Once you're ready to run the analysis navigate to the base directory with `Snakefile` and type
+Once you're ready to run the analysis type
 ```
-snakemake --use-conda --use-singularity
+snakemake --use-singularity -j [cores]
 ```
-If your machine has multiple cores, you can use these cores with
-```
-snakemake -j [cores]
-```
-This will run multiple rules simultaneously, speeding up the analysis.
+This will run the workflow locally. It is recommended you have at least 20GB of storage
+available as the Singularity containers take up around 8GB and the output files can be very
+large depending on the number of samples and sequencing depth.
 
 The pipeline produces two key files: `mafs/variants.maf` and `qc/multiqc_report.html`.
+
 `variants.maf` includes somatic variants from all samples that passed Mutect2 filtering.
 They have been annotated with VEP and a single effect has been chosen by [vcf2maf](https://github.com/mskcc/vcf2maf)
 using the Ensembl database. Ensembl uses its canonical isoforms for effect selection. 
 Other isoforms can be specified with the `alternate_isoforms` field in `config.yaml`.
 See the [cBioPortal override isoforms](https://github.com/mskcc/vcf2maf/blob/master/data/isoform_overrides_uniprot)
 for file formatting.
+
 `multiqc_report.html` includes quality metrics like coverage for the fully processed BAM files. 
 Individual VCF files for each sample prior VEP annotation are found as `vcfs/{patient}.vcf`.
 VEP annotated VCFs are found as `vcfs/{patient}.vep.vcf`. `qc/depths.svg` shows the sequencing depth distribution
@@ -66,15 +74,15 @@ for normal and tumor samples.
 If you're using a compute cluster, you can take advantage of massively
 parallel computation to speed up the analysis. Only SLURM clusters are
 currently supported, but if you work with another cluster system (SGE etc)
-`snakemake` makes it relatively easy to add cluster support.
+Snakemake makes it relatively easy to add support for your cluster.
 
-Follow these instructions to enable SLURM usage
-1. Edit the `out` field in `cluster.json` to tell SLURM where to save pipeline `stdout` and `stderr`.
-2. Run `snakemake` from the command line with the following options
+Follow these instructions to use SLURM execution
+1. Modify `cluster.wes.json` if you are analyzing WES data or `cluster.wgs.json` for WGS data. Set the `account` field to your SLURM account and the `out` field to where the SLURM log files should be saved. The recommended format is `/path/slurm-{jobid}.out`. All directories in the path must exist before launch - Snakemake will not create any directories. 
+2. Edit `run_pipeline.sh`. Specify the SLURM directives and set Snakemake to use `cluster.wes.json` or `cluster.wgs.json` depending on your needs.
+3. When ready, launch the workflow
 ```
-snakemake --cluster-config cluster.json -j 100 --cluster 'sbatch -p {cluster.partition} -t {cluster.time} --mem {cluster.mem}  -c {cluster.ncpus} -o {cluster.out}'
+sbatch run_pipeline.sh [path to Snakemake directory]
 ```
-This command can be run in an `sbatch` job.
 
 If for some reason you can't leave the master `snakemake` process running, `snakemake`
 offers the ability to launch all jobs using `--immediate-submit`. This
@@ -98,24 +106,6 @@ This can be disabled in `rules/calling.smk`
 * We provide the option for more stringent variant filtering criteria with the `stringent_filtering` setting in `config.yaml`. 
 This is turned off by default
 
-## Environments
-`snakemake` is required to run `ngs-pipeline`, and other programs (`samtools`, `gatk`, etc)
-are required for various steps in the pipeline. There are many ways to manage the required
-executables.
-
-### Singularity Container + Conda Environments
-`snakemake` can run `ngs-pipeline` in a `singularity` container. Inside this container
-each step is executed with a `conda` environment specified in `envs/`. This approach
-controls the OS and individual libraries, ensuring that certain software versions are
-used for analysis. This approach can be enabled with the `--use-conda --use-singularity`
-flags. **This approach is recommended because using .yaml files to specify the environment records the
-software version used for each step, helping others reproduce your results.**
-
-### Other
-Although `conda` and `singularity` are recommended, as long as all the packages are installed
-on your machine, the pipeline will run. You can also only use `conda` environments and
-skip the `singularity` container with `--use-conda`, although this means the OS may be
-different from other users.
 
 ## Test Dataset
 A small sample of `chr21` reads are supplied from the 
