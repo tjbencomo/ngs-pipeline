@@ -86,7 +86,7 @@
         "mem" : "16G"
     },
     "orientation_bias": {
-        "time": "1:00:00",
+        "time": "00:30:00",
         "ncpus": 1,
         "mem": "16G"
     },
