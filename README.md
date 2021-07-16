@@ -76,6 +76,13 @@ Individual VCF files for each sample prior VEP annotation are found as `vcfs/{pa
 VEP annotated VCFs are found as `vcfs/{patient}.vep.vcf`. `qc/depths.svg` shows the sequencing depth distribution
 for normal and tumor samples.
 
+### Mutect2 Parallelism
+Mutect2 can be scattered into many workers to process different regions of each sample in parallel via the `num_workers` setting in `config.yaml`.
+This divides the `genomic_regions` file into many small subregions (the same number of subregions as the number of workers). 
+Sets of intervals are split between files and individual intervals are not broken. When using the Broad's WGS calling regions interval file,
+GATK does not seem to support more than 24 workers (GATK won't create more than 24 subregions). For WES data such as exome capture
+kits, GATK will split the regions into more subsets (I have tested up to 50 workers but it can probably do more). 
+
 
 ### Cluster Execution
 If you're using a compute cluster, you can take advantage of massively
