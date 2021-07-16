@@ -24,7 +24,7 @@
     {
         "time" : "02:00:00",
         "ncpus" : 1,
-        "mem" : "10G"
+        "mem" : "12G"
     },
     "bwa" :
     {
@@ -40,7 +40,7 @@
     },
     "markdups_sort" :
     {
-        "time" : "2:00:00",
+        "time" : "4:30:00",
         "ncpus" : 4,
         "mem" : "32G"
     },
@@ -52,7 +52,7 @@
     },
     "apply_bqsr" :
     {
-        "time" : "2:00:00",
+        "time" : "3:30:00",
         "ncpus" : 1,
         "mem" : "16G"
     },
@@ -64,13 +64,13 @@
     },
     "stats" :
     {
-        "time" : "00:30:00",
+        "time" : "00:15:00",
         "ncpus" : 1,
         "mem" : "16G"
     },
     "fastqc" :
     {
-        "time" : "02:00:00",
+        "time" : "02:15:00",
         "ncpus" : 1,
         "mem" : "16G"
     },
@@ -83,6 +83,7 @@
     "mutect2" :
     {
         "time" : "01:00:00",
+        "ncpus" : 1,
         "mem" : "16G"
     },
     "orientation_bias": {
