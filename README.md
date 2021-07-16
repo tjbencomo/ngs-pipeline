@@ -31,6 +31,9 @@ You'll also need a BED file with a list of target regions. For WES this is usual
 this can be the entire genome or a whitelist file that excludes problematic regions. A WGS calling region file is available
 in the GATK Resource Bundle (it will need to be converted from interval_list format to BED format).
 
+**NOTE** If you have WES and WGS samples to analyze, create two separate instances of the workflow
+and run the samples separately. 
+
 ## Software
 Snakemake is required to run the pipeline. It is recommended users have Singularity installed to
 take advantage of preconfigured Docker containers for full reproducibility. If you
