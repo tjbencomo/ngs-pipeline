@@ -103,6 +103,11 @@
         "mem": "16G",
         "out" : "{logpath}/{rule}-{wildcards.patient}.out"
     },
+    "orientation_bias": {
+        "time": "00:30:00",
+        "ncpus": 1,
+        "mem": "16G"
+    },
     "pileup_summaries" :
     {
         "time" : "00:20:00",

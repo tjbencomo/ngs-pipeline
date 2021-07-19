@@ -177,7 +177,7 @@ rule fastqc:
     singularity: fastqc_env
     shell:
         """
-        tmpdir=qc/fastqc/.{wildcards.patient}-{wildcards.sample_type} 
+        tmpdir=qc/fastqc/{wildcards.patient}-{wildcards.sample_type}.tmp 
         mkdir $tmpdir 
         fastqc --outdir $tmpdir {input} 
         mv $tmpdir/{wildcards.patient}.{wildcards.sample_type}_fastqc.html {output.html} 
