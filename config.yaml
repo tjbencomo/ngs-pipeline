@@ -10,6 +10,13 @@ units: units.csv
 # This is needed as the data types require different computational resources and genomic regions to interrogate
 sequencing_type: WES
 
+# SLURM Log File
+# Set directory to save slurm log files (if using cluster execution)
+# This can be an absolute or relative path
+# If the directory doesn't exist the pipeline will create it
+slurm_log_dir: slurm-logs
+
+
 # Genomic Regions
 # Uncompressed BED (.bed) file with regions for variant calling. Must be specified!
 # For WES data, coverage is evaluated based on reads in these regions

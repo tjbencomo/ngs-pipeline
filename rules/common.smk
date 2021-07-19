@@ -7,6 +7,7 @@
 
 import sys
 import os
+from pathlib import Path
 import pandas as pd
 from snakemake.utils import validate
 from snakemake.utils import min_version
@@ -23,6 +24,10 @@ validate(units, schema = "../schemas/units.schema.yaml")
 units = units.sort_index()
 seqtype= config['sequencing_type']
 
+# Logs
+slurm_logdir = config['slurm_log_dir']
+logpath = Path(slurm_logdir)
+logpath.mkdir(parents=True, exist_ok=True) 
 
 # References
 ref_dir = config['ref_dir']

@@ -6,120 +6,144 @@
         "ncpus" : 1,
         "mem" : "8G",
         "partition" : "normal",
-        "out" : 
+        "out" : "{logpath}/{rule}-{jobid}.out"
     },
     "make_gatk_regions" :
     {
-        "time" : "00:05:00",
+        "time" : "00:15:00",
         "ncpus" : 1,
-        "mem" : "1G"
+        "mem" : "2G"
     },
     "split_intervals" :
     {
-        "time" : "00:05:00",
+        "time" : "00:15:00",
         "ncpus" : 1,
-        "mem" : "1G"
+        "mem" : "2G"
     },
     "combine_fqs" :
     {
         "time" : "02:00:00",
         "ncpus" : 1,
-        "mem" : "10G"
+        "mem" : "12G",
+        "out" : "{logpath}/{rule}-{wildcards.patient}-{wildcards.sample_type}-{wildcards.readgroup}.out"
     },
     "bwa" :
     {
         "time" : "6:00:00",
         "ncpus" : 4,
-        "mem" : "16G"
+        "mem" : "16G",
+        "out" : "{logpath}/{rule}-{wildcards.patient}-{wildcards.sample_type}-{wildcards.readgroup}.out"
     },
     "merge_bams" :
     {
         "time" : "02:00:00",
         "ncpus": 1,
-        "mem" : "16G"
+        "mem" : "16G",
+        "out" : "{logpath}/{rule}-{wildcards.patient}-{wildcards.sample_type}-{wildcards.readgroup}.out"
     },
     "markdups_sort" :
     {
-        "time" : "2:00:00",
+        "time" : "4:30:00",
         "ncpus" : 4,
-        "mem" : "32G"
+        "mem" : "32G",
+        "out" : "{logpath}/{rule}-{wildcards.patient}-{wildcards.sample_type}.out"
     },
     "bqsr" :
     {
         "time" : "5:00:00",
         "ncpus" : 1,
-        "mem" : "16G"
+        "mem" : "16G",
+        "out" : "{logpath}/{rule}-{wildcards.patient}-{wildcards.sample_type}.out"
     },
     "apply_bqsr" :
     {
-        "time" : "2:00:00",
+        "time" : "3:30:00",
         "ncpus" : 1,
-        "mem" : "16G"
+        "mem" : "16G",
+        "out" : "{logpath}/{rule}-{wildcards.patient}-{wildcards.sample_type}.out"
     },
     "coverage" :
     {
         "time" : "0:20:00",
         "ncpus" : 4,
-        "mem" : "8G"
+        "mem" : "8G",
+        "out" : "{logpath}/{rule}-{wildcards.patient}-{wildcards.sample_type}.out"
     },
     "stats" :
     {
-        "time" : "00:30:00",
+        "time" : "00:15:00",
         "ncpus" : 1,
-        "mem" : "16G"
+        "mem" : "16G",
+        "out" : "{logpath}/{rule}-{wildcards.patient}-{wildcards.sample_type}.out"
     },
     "fastqc" :
     {
-        "time" : "01:00:00",
+        "time" : "02:15:00",
         "ncpus" : 1,
-        "mem" : "16G"
+        "mem" : "16G",
+        "out" : "{logpath}/{rule}-{wildcards.patient}-{wildcards.sample_type}.out"
     },
     "multiqc" :
     {
         "time" : "01:00:00",
         "ncpus" : 1,
-        "mem" : "16G"
+        "mem" : "16G",
+        "out" : "{logpath}/{rule}.out"
     },
     "mutect2" :
     {
         "time" : "01:00:00",
-        "mem" : "16G"
+        "ncpus" : 1,
+        "mem" : "16G",
+        "out" : "{logpath}/{rule}-{wildcards.patient}-{wildcards.interval}.out"
+    },
+    "orientation_bias": {
+        "time": "00:30:00",
+        "ncpus": 1,
+        "mem": "16G",
+        "out" : "{logpath}/{rule}-{wildcards.patient}.out"
     },
     "pileup_summaries" :
     {
         "time" : "00:20:00",
         "ncpus" : 1,
-        "mem" : "8G"
+        "mem" : "8G",
+        "out" : "{logpath}/{rule}-{wildcards.patient}-{wildcards.sample_type}.out"
     },
     "calculate_contamination" :
     {
         "time" : "00:20:00",
         "ncpus" : 1,
-        "mem" : "8G"
+        "mem" : "8G",
+        "out" : "{logpath}/{rule}-{wildcards.patient}.out"
     },
     "filter_calls" :
     {
         "time" : "00:20:00",
         "ncpus" : 1,
-        "mem" : "8G"
+        "mem" : "8G",
+        "out" : "{logpath}/{rule}-{wildcards.patient}.out"
     },
     "select_calls" : 
     {
         "time" : "00:20:00",
         "ncpus" : 1,
-        "mem" : "2G"
+        "mem" : "2G",
+        "out" : "{logpath}/{rule}-{wildcards.patient}.out"
     },
     "vcf2maf" : 
     {
         "time" : "01:00:00",
         "ncpus" : 1,
-        "mem" : "16G"
+        "mem" : "16G",
+        "out" : "{logpath}/{rule}-{wildcards.patient}.out"
     },
     "concat_mafs" : 
     {
         "time" : "00:20:00",
         "ncpus" : 1,
-        "mem" : "8G"
+        "mem" : "8G",
+        "out" : "{logpath}/{rule}.out"
     },
     "mutect2_pon" :
     {
@@ -141,6 +165,8 @@
     "seq_depths" : 
     {
         "time" : "00:20:00",
-        "mem" : "8G"
+        "ncpus" : 1,
+        "mem" : "8G",
+        "out" : "{logpath}/{rule}.out"
     }
 }
