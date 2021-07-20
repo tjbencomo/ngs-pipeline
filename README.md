@@ -91,7 +91,7 @@ currently supported, but if you work with another cluster system (SGE etc)
 Snakemake makes it relatively easy to add support for your cluster.
 
 Follow these instructions to use SLURM execution
-1. Modify `cluster.wes.json` if you are analyzing WES data or `cluster.wgs.json` for WGS data. Set the `account` field to your SLURM account and the `out` field to where the SLURM log files should be saved. The recommended format is `/path/slurm-{jobid}.out`. All directories in the path must exist before launch - Snakemake will not create any directories. 
+1. Modify `cluster.wes.json` if you are analyzing WES data or `cluster.wgs.json` for WGS data. Set the `account` field to your SLURM account (for Sherlock your SUNet ID). The recommended format is `/path/slurm-{jobid}.out`. All directories in the path must exist before launch - Snakemake will not create any directories. 
 2. Edit `run_pipeline.sh`. Specify the SLURM directives and set Snakemake to use `cluster.wes.json` or `cluster.wgs.json` depending on your needs.
 3. When ready, launch the workflow
 ```
