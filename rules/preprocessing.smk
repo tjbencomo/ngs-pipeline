@@ -143,17 +143,17 @@ rule coverage:
     input:
         unpack(get_coverage_input)
     output:
-        "qc/{patient}_{sample_type}.mosdepth.region.dist.txt",
-        "qc/{patient}_{sample_type}.regions.bed.gz",
-        "qc/{patient}_{sample_type}.mosdepth.global.dist.txt",
-        "qc/{patient}_{sample_type}.mosdepth.summary.txt"
+        "qc/{patient}.{sample_type}.mosdepth.region.dist.txt",
+        "qc/{patient}.{sample_type}.regions.bed.gz",
+        "qc/{patient}.{sample_type}.mosdepth.global.dist.txt",
+        "qc/{patient}.{sample_type}.mosdepth.summary.txt"
     threads: 4
     params:
         by=lambda wildcards, input: '500' if seqtype == 'WGS' else input.regions
     singularity: mosdepth_env
     shell:
         """
-        mosdepth --by {params.by} -t {threads} qc/{wildcards.patient}_{wildcards.sample_type} \
+        mosdepth --by {params.by} -t {threads} qc/{wildcards.patient}.{wildcards.sample_type} \
             {input.bam}
         """
 
@@ -188,7 +188,7 @@ rule fastqc:
 rule multiqc:
     input:
         expand("qc/fastqc/{patient}.{sample_type}_fastqc.zip", patient=patients, sample_type=sample_types),
-        expand("qc/{patient}_{sample_type}.mosdepth.region.dist.txt", patient=patients, sample_type=sample_types),
+        expand("qc/{patient}.{sample_type}.mosdepth.region.dist.txt", patient=patients, sample_type=sample_types),
         expand("qc/{patient}.{sample_type}.flagstat", patient=patients, sample_type=sample_types)
     output:
         "qc/multiqc_report.html"
@@ -200,7 +200,7 @@ rule multiqc:
 
 rule seq_depths:
     input:
-        expand("qc/{patient}_{sample_type}.mosdepth.summary.txt", patient=patients, sample_type=sample_types)
+        expand("qc/{patient}.{sample_type}.mosdepth.summary.txt", patient=patients, sample_type=sample_types)
     output:
         "qc/depths.csv"
     singularity: eda_env
