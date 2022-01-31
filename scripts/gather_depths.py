@@ -2,6 +2,7 @@
 # Description: Aggregate exome depth statistics from mosdepth
 # into a table for plotting
 
+import os
 import pandas as pd
 
 col_names = ['chr', 'start', 'end', 'depth']
