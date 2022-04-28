@@ -24,6 +24,11 @@ validate(units, schema = "../schemas/units.schema.yaml")
 units = units.sort_index()
 seqtype= config['sequencing_type']
 
+# Check that there are no duplicate patients
+# Duplicate patients cause patient MAFs to be repeated as input to concat_mafs and duplicate SNVs
+if patients.shape[0] != patients.unique().shape[0]:
+    raise ValueError(f"Duplicate patients present in {config['patients']}. Remove duplicates!")
+
 # Logs
 slurm_logdir = config['slurm_log_dir']
 logpath = Path(slurm_logdir)
