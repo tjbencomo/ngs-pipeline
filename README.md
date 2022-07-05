@@ -95,7 +95,8 @@ Follow these instructions to use SLURM execution
 2. Edit `run_pipeline.sh`. Specify the SLURM directives and set Snakemake to use `cluster.wes.json` or `cluster.wgs.json` depending on your needs.
 3. When ready, launch the workflow
 ```
-sbatch run_pipeline.sh [path to Snakemake directory]
+# Run this from inside the workflow directory
+sbatch run_pipeline.sh
 ```
 
 If for some reason you can't leave the master `snakemake` process running, `snakemake`
