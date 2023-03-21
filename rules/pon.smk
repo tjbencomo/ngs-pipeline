@@ -39,6 +39,7 @@ rule gather_variants:
             --genomicsdb-workspace-path {output} \
             -V {params.vcfs} \
             -L {input.intervals} \
+            --merge-input-intervals true \
             -ip 100
         """
 
